@@ -19,12 +19,11 @@ public class AuthService implements AuthUseCase {
     private final JwtTokenProviderPort jwtProvider;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepositoryPort userRepositoryPort, JwtService jwtService, BCryptPasswordEncoder passwordEncoder) {
-        this.userRepositoryPort = userRepositoryPort;
-        this.jwtService = jwtService;
+    public AuthService(UserRepositoryPort userRepository, JwtTokenProviderPort jwtProvider, BCryptPasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.jwtProvider = jwtProvider;
         this.passwordEncoder = passwordEncoder;
     }
-
 
     @Override
     public AuthResponse register(RegisterRequest request) {

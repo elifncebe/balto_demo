@@ -37,7 +37,6 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // ✅ ADD THIS BEAN
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

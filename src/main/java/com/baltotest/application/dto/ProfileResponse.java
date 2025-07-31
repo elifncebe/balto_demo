@@ -1,4 +1,4 @@
-package com.baltotest.domain.dto;
+package com.baltotest.application.dto;
 
 import com.baltotest.domain.entity.Role;
 
