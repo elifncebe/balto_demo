@@ -13,6 +13,8 @@ Balto Test is a Java-based web application built with Spring Boot that implement
 - User profile management
 - Role-based access control (BROKER and CUSTOMER roles)
 - Support for both PostgreSQL and H2 in-memory database
+- Asynchronous messaging with RabbitMQ
+- Standardized API responses following the superdiapatch format
 
 ## Technologies Used
 
