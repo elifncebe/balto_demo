@@ -22,7 +22,6 @@ Balto Test is a Java-based web application built with Spring Boot that implement
 - Spring Data JPA
 - JWT (JSON Web Tokens)
 - PostgreSQL / H2 Database
-- RabbitMQ (for messaging)
 - Gradle
 
 ## Prerequisites
@@ -30,7 +29,6 @@ Balto Test is a Java-based web application built with Spring Boot that implement
 - JDK 17 or later
 - Gradle 7.x or later
 - PostgreSQL (optional, can use H2 in-memory database for testing)
-- RabbitMQ (for messaging)
 
 ## Installation and Setup
 
