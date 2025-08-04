@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balto - Logistics Management System</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#151326',
+                        'primary-dark': '#0D0C18',
+                        'primary-light': '#2E294E',
+                        accent: '#6A5ACD',
+                        'accent-light': '#8A4FFF',
+                        secondary: '#2E294E',
+                        success: '#4CAF50',
+                        warning: '#FF9800',
+                        danger: '#F44336',
+                        light: '#F5F5F7',
+                        dark: '#0D0C18',
+                        gray: '#9E9E9E',
+                        'lavender': '#E6E6FA',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-container {
+                @apply container mx-auto px-4 py-8;
+            }
+            .card {
+                @apply bg-white rounded-lg shadow-md p-6 mb-6;
+            }
+            .btn-primary {
+                @apply bg-accent hover:bg-accent-light text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5;
+            }
+            .btn-secondary {
+                @apply bg-secondary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out;
+            }
+            .btn-success {
+                @apply bg-success hover:bg-success/80 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out;
+            }
+            .btn-danger {
+                @apply bg-danger hover:bg-danger/80 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out;
+            }
+            .form-input {
+                @apply w-full px-4 py-3 border border-lavender rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent bg-light/50 text-primary transition duration-200 ease-in-out;
+            }
+            .form-label {
+                @apply block text-primary font-medium mb-2;
+            }
+            .form-group {
+                @apply mb-4;
+            }
+            .badge {
+                @apply inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm;
+            }
+            .badge-primary {
+                @apply bg-accent text-white;
+            }
+            .badge-success {
+                @apply bg-success text-white;
+            }
+            .badge-warning {
+                @apply bg-warning text-white;
+            }
+            .badge-danger {
+                @apply bg-danger text-white;
+            }
+            .badge-new {
+                @apply bg-accent text-white;
+            }
+            .badge-in-progress {
+                @apply bg-warning text-white;
+            }
+            .badge-completed {
+                @apply bg-success text-white;
+            }
+            .badge-cancelled {
+                @apply bg-danger text-white;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-lavender to-light min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold">Balto</h1>
+                <p class="ml-3 text-lavender">Shipping that matters</p>
+            </div>
+            <div sec:authorize="isAuthenticated()">
+                <span class="mr-4" sec:authentication="name">Username</span>
+                <a href="/logout" class="text-white hover:text-lavender transition">Logout</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main>
+        <div th:replace="${content}">
+            <!-- Content will be replaced by the specific page content -->
+            <p>Default content</p>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center items-center mb-4">
+                <h2 class="text-2xl font-bold">Balto</h2>
+                <span class="mx-3 text-accent">•</span>
+                <p class="text-lavender">Shipping that matters</p>
+            </div>
+            <p class="mb-2">Balto Logistics Management System v0.1</p>
+            <p class="text-lavender text-sm">
+                <a href="/api/health" class="text-lavender hover:text-white transition mx-2">API Status</a>
+                <a href="/hello" class="text-lavender hover:text-white transition mx-2">Hello Endpoint</a>
+                <a href="/terminate" class="text-lavender hover:text-white transition mx-2">Terminate Application</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

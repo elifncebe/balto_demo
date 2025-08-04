@@ -1,5 +1,11 @@
 // Main React application for Balto
 
+// Configure axios defaults
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+// Configure axios defaults
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
 // Create a context for authentication
 const AuthContext = React.createContext(null);
 
@@ -21,7 +27,10 @@ function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      const response = await axios.post('/auth/login', { email, password });
+      const response = await axios.post('/auth/login', 
+        { email, password },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
       const userData = response.data.data;
       setUser(userData);
       localStorage.setItem('balto_user', JSON.stringify(userData));
@@ -41,7 +50,10 @@ function AuthProvider({ children }) {
   const register = async (name, email, password) => {
     try {
       setLoading(true);
-      const response = await axios.post('/auth/signup', { name, email, password });
+      const response = await axios.post('/auth/signup', 
+        { name, email, password },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
       const userData = response.data.data;
       setUser(userData);
       localStorage.setItem('balto_user', JSON.stringify(userData));
@@ -62,7 +74,672 @@ function AuthProvider({ children }) {
     setUser(null);
     localStorage.removeItem('balto_user');
   };
+// Create a React context for authentication
+const AuthContext = React.createContext(null);
 
+// Provider component for authentication
+function AuthProvider({ children }) {
+    const [user, setUser] = React.useState(null);
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState(null);
+    const [isInitialized, setIsInitialized] = React.useState(false);
+
+    // Check for existing authentication on component mount
+    React.useEffect(() => {
+        const token = localStorage.getItem('token');
+        const userData = localStorage.getItem('user');
+
+        if (token && userData) {
+            try {
+                setUser(JSON.parse(userData));
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            } catch (e) {
+                console.error('Error parsing stored user data:', e);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+            }
+        }
+
+        setIsInitialized(true);
+    }, []);
+
+    // Login function
+    const login = async (email, password) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await axios.post('/auth/login', 
+                { email, password },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+            const { data } = response.data;
+
+            if (data && data.token) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+                setUser(data.user);
+                return { success: true };
+            } else {
+                throw new Error('Invalid response format');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            let message = 'An error occurred during login';
+
+            if (err.response) {
+                // The request was made and the server responded with an error status
+                if (err.response.data && err.response.data.errors && err.response.data.errors.length > 0) {
+                    message = err.response.data.errors[0].message || message;
+                } else if (err.response.data && err.response.data.message) {
+                    message = err.response.data.message;
+                } else if (err.response.status === 401) {
+                    message = 'Invalid email or password';
+                }
+            } else if (err.request) {
+                // The request was made but no response was received
+                message = 'No response from server. Please try again later.';
+            }
+
+            setError(message);
+            return { success: false, message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Register function
+    const register = async (name, email, password) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await axios.post('/auth/signup', 
+                { name, email, password },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+            const { data } = response.data;
+
+            if (data) {
+                // Automatically log in after successful registration
+                return await login(email, password);
+            } else {
+                throw new Error('Invalid response format');
+            }
+        } catch (err) {
+            console.error('Registration error:', err);
+            let message = 'An error occurred during registration';
+
+            if (err.response) {
+                if (err.response.data && err.response.data.errors && err.response.data.errors.length > 0) {
+                    message = err.response.data.errors[0].message || message;
+                } else if (err.response.data && err.response.data.message) {
+                    message = err.response.data.message;
+                }
+            } else if (err.request) {
+                message = 'No response from server. Please try again later.';
+            }
+
+            setError(message);
+            return { success: false, message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Logout function
+    const logout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        delete axios.defaults.headers.common['Authorization'];
+        setUser(null);
+    };
+
+    const contextValue = {
+        user,
+        loading,
+        error,
+        isInitialized,
+        login,
+        register,
+        logout
+    };
+
+    return (
+        <AuthContext.Provider value={contextValue}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
+
+// Custom hook to use auth context
+function useAuth() {
+    const context = React.useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+}
+
+// Login component
+function Login() {
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const [errorMessage, setErrorMessage] = React.useState('');
+    const auth = useAuth();
+
+    React.useEffect(() => {
+        if (auth.error) {
+            setErrorMessage(auth.error);
+        }
+    }, [auth.error]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrorMessage('');
+
+        if (!email || !password) {
+            setErrorMessage('Please enter both email and password');
+            return;
+        }
+
+        const result = await auth.login(email, password);
+        if (!result.success) {
+            setErrorMessage(result.message);
+        }
+    };
+
+    return (
+        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Login to Balto</h2>
+
+            {errorMessage && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-red-700">{errorMessage}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="email">
+                        Email Address
+                    </label>
+                    <input
+                        id="email"
+                        type="email"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-6">
+                    <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="password">
+                        Password
+                    </label>
+                    <input
+                        id="password"
+                        type="password"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <button
+                    type="submit"
+                    className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300 flex justify-center items-center"
+                    disabled={auth.loading}
+                >
+                    {auth.loading ? (
+                        <>
+                            <div className="loading-spinner mr-2"></div>
+                            Logging in...
+                        </>
+                    ) : (
+                        'Login'
+                    )}
+                </button>
+            </form>
+        </div>
+    );
+}
+
+// Register component
+function Register() {
+    const [name, setName] = React.useState('');
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const [confirmPassword, setConfirmPassword] = React.useState('');
+    const [errorMessage, setErrorMessage] = React.useState('');
+    const auth = useAuth();
+
+    React.useEffect(() => {
+        if (auth.error) {
+            setErrorMessage(auth.error);
+        }
+    }, [auth.error]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrorMessage('');
+
+        if (!name || !email || !password || !confirmPassword) {
+            setErrorMessage('Please fill in all fields');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setErrorMessage('Passwords do not match');
+            return;
+        }
+
+        if (password.length < 6) {
+            setErrorMessage('Password must be at least 6 characters long');
+            return;
+        }
+
+        const result = await auth.register(name, email, password);
+        if (!result.success) {
+            setErrorMessage(result.message);
+        }
+    };
+
+    return (
+        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Create an Account</h2>
+
+            {errorMessage && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-red-700">{errorMessage}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="name">
+                        Full Name
+                    </label>
+                    <input
+                        id="name"
+                        type="text"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="John Doe"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="register-email">
+                        Email Address
+                    </label>
+                    <input
+                        id="register-email"
+                        type="email"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="register-password">
+                        Password
+                    </label>
+                    <input
+                        id="register-password"
+                        type="password"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-6">
+                    <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="confirm-password">
+                        Confirm Password
+                    </label>
+                    <input
+                        id="confirm-password"
+                        type="password"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <button
+                    type="submit"
+                    className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300 flex justify-center items-center"
+                    disabled={auth.loading}
+                >
+                    {auth.loading ? (
+                        <>
+                            <div className="loading-spinner mr-2"></div>
+                            Creating Account...
+                        </>
+                    ) : (
+                        'Create Account'
+                    )}
+                </button>
+            </form>
+        </div>
+    );
+}
+
+// Dashboard component
+function Dashboard() {
+    const auth = useAuth();
+    const [activeTab, setActiveTab] = React.useState('loads');
+    const [loads, setLoads] = React.useState([]);
+    const [messages, setMessages] = React.useState([]);
+    const [channels, setChannels] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
+
+    // Fetch data based on active tab
+    React.useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                let data = [];
+
+                switch (activeTab) {
+                    case 'loads':
+                        // Mock data for loads
+                        data = [
+                            { id: 1, name: 'Load #12345', status: 'In Transit', origin: 'New York, NY', destination: 'Boston, MA', eta: '2025-08-05' },
+                            { id: 2, name: 'Load #12346', status: 'Delivered', origin: 'Chicago, IL', destination: 'Detroit, MI', eta: '2025-08-03' },
+                            { id: 3, name: 'Load #12347', status: 'Pending', origin: 'San Francisco, CA', destination: 'Los Angeles, CA', eta: '2025-08-06' },
+                        ];
+                        setLoads(data);
+                        break;
+
+                    case 'messages':
+                        // Mock data for messages
+                        data = [
+                            { id: 1, from: 'John Doe', subject: 'Load #12345 Update', content: 'The load will arrive earlier than expected.', date: '2025-08-03' },
+                            { id: 2, from: 'Jane Smith', subject: 'New Assignment', content: 'You have been assigned a new load.', date: '2025-08-02' },
+                            { id: 3, from: 'System', subject: 'Welcome', content: 'Welcome to the Balto Logistics Management System!', date: '2025-08-01' },
+                        ];
+                        setMessages(data);
+                        break;
+
+                    case 'channels':
+                        // Mock data for channels
+                        data = [
+                            { id: 1, name: 'Team Alpha', members: 5, lastActivity: '10 minutes ago' },
+                            { id: 2, name: 'East Coast Operations', members: 8, lastActivity: '2 hours ago' },
+                            { id: 3, name: 'Driver Updates', members: 15, lastActivity: '1 day ago' },
+                        ];
+                        setChannels(data);
+                        break;
+
+                    default:
+                        break;
+                }
+            } catch (error) {
+                console.error(`Error fetching ${activeTab}:`, error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [activeTab]);
+
+    const handleLogout = () => {
+        auth.logout();
+    };
+
+    return (
+        <div className="flex flex-col min-h-screen">
+            {/* Header */}
+            <header className="bg-indigo-600 text-white shadow">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                    <h1 className="text-xl font-bold">Balto Logistics</h1>
+                    <div className="flex items-center space-x-4">
+                        <span className="text-sm">{auth.user?.name || 'User'}</span>
+                        <button 
+                            onClick={handleLogout}
+                            className="bg-indigo-500 hover:bg-indigo-700 text-white text-sm py-1 px-3 rounded-md transition duration-300"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            {/* Main content */}
+            <main className="flex-grow">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    {/* Tabs */}
+                    <div className="border-b border-gray-200 mb-6">
+                        <nav className="-mb-px flex space-x-8">
+                            <button
+                                className={`${activeTab === 'loads' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm focus:outline-none`}
+                                onClick={() => setActiveTab('loads')}
+                            >
+                                Loads
+                            </button>
+                            <button
+                                className={`${activeTab === 'messages' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm focus:outline-none`}
+                                onClick={() => setActiveTab('messages')}
+                            >
+                                Messages
+                            </button>
+                            <button
+                                className={`${activeTab === 'channels' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm focus:outline-none`}
+                                onClick={() => setActiveTab('channels')}
+                            >
+                                Channels
+                            </button>
+                        </nav>
+                    </div>
+
+                    {/* Tab content */}
+                    <div className="bg-white shadow rounded-lg p-6">
+                        {loading ? (
+                            <div className="flex justify-center items-center h-64">
+                                <div className="loading-spinner"></div>
+                                <p className="ml-3 text-gray-600">Loading...</p>
+                            </div>
+                        ) : activeTab === 'loads' ? (
+                            <div>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-lg font-semibold text-gray-800">Your Loads</h2>
+                                    <button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md text-sm">
+                                        New Load
+                                    </button>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Origin</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ETA</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {loads.length > 0 ? (
+                                                loads.map((load) => (
+                                                    <tr key={load.id}>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{load.id}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{load.name}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${load.status === 'In Transit' ? 'bg-yellow-100 text-yellow-800' : load.status === 'Delivered' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                                {load.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{load.origin}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{load.destination}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{load.eta}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <button className="text-indigo-600 hover:text-indigo-900 mr-3">View</button>
+                                                            <button className="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="7" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No loads found</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ) : activeTab === 'messages' ? (
+                            <div>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-lg font-semibold text-gray-800">Messages</h2>
+                                    <button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md text-sm">
+                                        New Message
+                                    </button>
+                                </div>
+                                <div className="space-y-4">
+                                    {messages.length > 0 ? (
+                                        messages.map((message) => (
+                                            <div key={message.id} className="border border-gray-200 rounded-md p-4 hover:bg-gray-50 cursor-pointer">
+                                                <div className="flex justify-between mb-2">
+                                                    <h3 className="text-md font-medium text-gray-900">{message.subject}</h3>
+                                                    <span className="text-sm text-gray-500">{message.date}</span>
+                                                </div>
+                                                <p className="text-sm text-gray-600 mb-2">From: {message.from}</p>
+                                                <p className="text-sm text-gray-600">{message.content}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-center text-gray-500">No messages found</p>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-lg font-semibold text-gray-800">Communication Channels</h2>
+                                    <button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md text-sm">
+                                        Create Channel
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {channels.length > 0 ? (
+                                        channels.map((channel) => (
+                                            <div key={channel.id} className="border border-gray-200 rounded-md p-4 hover:bg-gray-50 cursor-pointer">
+                                                <h3 className="text-md font-medium text-gray-900 mb-2">{channel.name}</h3>
+                                                <p className="text-sm text-gray-600 mb-2">{channel.members} members</p>
+                                                <p className="text-xs text-gray-500">Last activity: {channel.lastActivity}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-center text-gray-500 col-span-3">No channels found</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </main>
+
+            {/* Footer */}
+            <footer className="bg-gray-100 border-t border-gray-200">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex justify-between items-center">
+                        <p className="text-sm text-gray-500">© 2025 Balto Logistics. All rights reserved.</p>
+                        <p className="text-sm text-gray-500">
+                            <a href="/shutdown" className="text-indigo-600 hover:text-indigo-800">Terminate Application</a>
+                        </p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    );
+}
+
+// Auth page component that switches between login and register
+function AuthPage() {
+    const [isLogin, setIsLogin] = React.useState(true);
+
+    return (
+        <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+            <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <h1 className="text-3xl font-extrabold text-center text-indigo-600 mb-4">Balto Logistics</h1>
+                <h2 className="text-2xl font-bold text-center text-gray-900">
+                    {isLogin ? 'Sign in to your account' : 'Create a new account'}
+                </h2>
+                <p className="mt-2 text-center text-sm text-gray-600 max-w">
+                    {isLogin ? 'New to Balto?' : 'Already have an account?'}{' '}
+                    <button 
+                        onClick={() => setIsLogin(!isLogin)}
+                        className="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none"
+                    >
+                        {isLogin ? 'Create an account' : 'Sign in'}
+                    </button>
+                </p>
+            </div>
+
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                {isLogin ? <Login /> : <Register />}
+            </div>
+        </div>
+    );
+}
+
+// Main App component
+function App() {
+    const auth = useAuth();
+
+    // Show loading state while checking authentication
+    if (!auth.isInitialized) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <div className="loading-spinner"></div>
+                <p className="ml-3 text-gray-600">Loading...</p>
+            </div>
+        );
+    }
+
+    return auth.user ? <Dashboard /> : <AuthPage />;
+}
+
+// Render the app
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <React.StrictMode>
+        <AuthProvider>
+            <App />
+        </AuthProvider>
+    </React.StrictMode>
+);
   const value = {
     user,
     loading,

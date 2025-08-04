@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balto - Logistics Management</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#151326',
+                        'primary-dark': '#0D0C18',
+                        'primary-light': '#2E294E',
+                        accent: '#6A5ACD',
+                        'accent-light': '#8A4FFF',
+                        secondary: '#2E294E',
+                        success: '#4CAF50',
+                        warning: '#FF9800',
+                        danger: '#F44336',
+                        light: '#F5F5F7',
+                        dark: '#0D0C18',
+                        gray: '#9E9E9E',
+                        'lavender': '#E6E6FA',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .btn-primary {
+                @apply bg-accent hover:bg-accent-light text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5;
+            }
+            .form-input {
+                @apply w-full px-4 py-3 border border-lavender rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent bg-light/50 text-primary transition duration-200 ease-in-out;
+            }
+            .form-label {
+                @apply block text-primary font-medium mb-2;
+            }
+            .form-group {
+                @apply mb-6;
+            }
+            .tab {
+                @apply py-3 px-6 font-semibold cursor-pointer transition duration-200 ease-in-out;
+            }
+            .tab-active {
+                @apply bg-accent text-white rounded-lg shadow-md;
+            }
+            .tab-inactive {
+                @apply text-primary hover:text-accent-light;
+            }
+        }
+    </style>
+</head>
+    <body class="bg-gradient-to-b from-lavender to-light min-h-screen flex flex-col">
+    <div class="flex-grow flex items-center justify-center py-12">
+        <div class="max-w-md w-full mx-4">
+            <!-- Logo and Title -->
+            <div class="text-center mb-8">
+                <h1 class="text-6xl font-bold text-primary">Balto</h1>
+                <p class="text-primary-light mt-3 text-xl">Shipping that matters</p>
+            </div>
+
+            <!-- Auth Card -->
+            <div class="bg-white rounded-xl shadow-xl p-8 border border-lavender">
+                <h2 class="text-2xl font-bold text-center text-primary mb-4">Access Your Account</h2>
+                <p class="text-center text-secondary mb-6">Choose your login method below</p>
+
+                <!-- Login Options -->
+                <div class="flex mb-8 bg-light rounded-lg p-1">
+                    <button id="broker-tab" class="flex-1 py-3 px-4 text-center font-semibold rounded-lg bg-accent text-white shadow-md">Broker</button>
+                    <button id="customer-tab" class="flex-1 py-3 px-4 text-center font-semibold text-primary hover:text-accent-light transition">Customer</button>
+                </div>
+                
+                <!-- Error Alert -->
+                <div id="error-message" class="bg-red-50 border border-danger rounded-lg shadow-sm p-4 mb-6 hidden">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-danger mr-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <p id="error-text" class="text-danger font-medium">An error occurred. Please try again.</p>
+                    </div>
+                </div>
+
+                <!-- Success Alert -->
+                <div id="success-message" class="bg-green-50 border border-success rounded-lg shadow-sm p-4 mb-6 hidden">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success mr-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <p id="success-text" class="text-success font-medium">Operation completed successfully.</p>
+                    </div>
+                </div>
+
+                <!-- Broker Login Form -->
+                <div id="broker-form">
+                    <h2 class="text-2xl font-bold text-secondary mb-6 text-center">Login</h2>
+                    <form id="login-form-element">
+                        <div class="form-group">
+                            <label for="login-email" class="form-label">Email</label>
+                            <input 
+                                type="email" 
+                                id="login-email" 
+                                name="email" 
+                                class="form-input" 
+                                required 
+                                autofocus
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="login-password" class="form-label">Password</label>
+                            <input 
+                                type="password" 
+                                id="login-password" 
+                                name="password" 
+                                class="form-input" 
+                                required
+                            >
+                        </div>
+
+                        <div class="mt-6">
+                            <button type="submit" id="login-button" class="btn-primary w-full shadow-md hover:shadow-lg transform transition-transform duration-200 hover:-translate-y-1">
+                                <span id="login-button-text">Login</span>
+                                <span id="login-spinner" class="hidden ml-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 text-center">
+                        <p class="text-gray-600">Don't have an account? <button id="show-register-button" class="text-blue-500 hover:text-blue-700 font-semibold">Register</button></p>
+                    </div>
+                </div>
+                
+                <!-- Customer Login Form -->
+                <div id="customer-form" class="hidden">
+                    <h2 class="text-2xl font-bold text-secondary mb-6 text-center">Track Your Shipment</h2>
+                    <form id="customer-form-element">
+                        <div class="form-group">
+                            <label for="customer-load-id" class="form-label">Load ID</label>
+                            <input 
+                                type="text" 
+                                id="customer-load-id" 
+                                name="loadId" 
+                                class="form-input" 
+                                placeholder="Enter your Load ID (e.g., LOD12345)"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customer-email" class="form-label">Email</label>
+                            <input 
+                                type="email" 
+                                id="customer-email" 
+                                name="email" 
+                                class="form-input" 
+                                placeholder="Enter the email associated with your shipment"
+                                required
+                            >
+                        </div>
+
+                        <div class="mt-6">
+                            <button type="submit" id="customer-login-button" class="btn-primary w-full shadow-md hover:shadow-lg transform transition-transform duration-200 hover:-translate-y-1">
+                                <span id="customer-button-text">Track Shipment</span>
+                                <span id="customer-spinner" class="hidden ml-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Registration Form -->
+                <div id="register-form" class="hidden">
+                    <h2 class="text-2xl font-bold text-secondary mb-6 text-center">Register</h2>
+                    <form id="signup-form">
+                        <div class="form-group">
+                            <label for="register-name" class="form-label">Name</label>
+                            <input 
+                                type="text" 
+                                id="register-name" 
+                                name="name" 
+                                class="form-input" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="register-email" class="form-label">Email</label>
+                            <input 
+                                type="email" 
+                                id="register-email" 
+                                name="email" 
+                                class="form-input" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="register-password" class="form-label">Password</label>
+                            <input 
+                                type="password" 
+                                id="register-password" 
+                                name="password" 
+                                class="form-input" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="register-role" class="form-label">Role</label>
+                            <select 
+                                id="register-role" 
+                                name="role" 
+                                class="form-input" 
+                                required
+                            >
+                                <option value="BROKER">Broker</option>
+                                <option value="CUSTOMER" selected>Customer</option>
+                                <option value="CARRIER">Carrier</option>
+                                <option value="DISPATCHER">Dispatcher</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <button type="submit" id="register-button" class="btn-primary w-full shadow-md hover:shadow-lg transform transition-transform duration-200 hover:-translate-y-1">
+                                <span id="register-button-text">Register</span>
+                                <span id="register-spinner" class="hidden ml-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 text-center">
+                        <p class="text-gray-600">Already have an account? <button id="show-login-button" class="text-blue-500 hover:text-blue-700 font-semibold">Login</button></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center items-center mb-4">
+                <h2 class="text-2xl font-bold">Balto</h2>
+                <span class="mx-3 text-accent">•</span>
+                <p class="text-lavender">Shipping that matters</p>
+            </div>
+            <p class="mb-2">Balto Logistics Management System v0.1</p>
+            <p class="text-lavender text-sm">
+                Demo Application for Logistics Communication
+            </p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript for tab switching and form submission -->
+    <script>
+        // Tab switching functionality
+        document.getElementById('broker-tab').addEventListener('click', function() {
+            this.classList.add('border-blue-500', 'text-blue-500');
+            this.classList.remove('text-gray-500');
+            document.getElementById('customer-tab').classList.remove('border-blue-500', 'text-blue-500');
+            document.getElementById('customer-tab').classList.add('text-gray-500');
+            
+            // Show broker form, hide customer form and register form
+            document.getElementById('broker-form').classList.remove('hidden');
+            document.getElementById('customer-form').classList.add('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+        });
+
+        document.getElementById('customer-tab').addEventListener('click', function() {
+            this.classList.add('border-blue-500', 'text-blue-500');
+            this.classList.remove('text-gray-500');
+            document.getElementById('broker-tab').classList.remove('border-blue-500', 'text-blue-500');
+            document.getElementById('broker-tab').classList.add('text-gray-500');
+            
+            // Show customer form, hide broker form and register form
+            document.getElementById('customer-form').classList.remove('hidden');
+            document.getElementById('broker-form').classList.add('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+        });
+        
+        // Switch to registration form
+        document.getElementById('show-register-button').addEventListener('click', function() {
+            document.getElementById('broker-form').classList.add('hidden');
+            document.getElementById('customer-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+        });
+        
+        // Switch back to login form
+        document.getElementById('show-login-button').addEventListener('click', function() {
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('broker-form').classList.remove('hidden');
+            document.getElementById('customer-form').classList.add('hidden');
+            
+            // Make sure broker tab is active
+            document.getElementById('broker-tab').classList.add('border-blue-500', 'text-blue-500');
+            document.getElementById('broker-tab').classList.remove('text-gray-500');
+            document.getElementById('customer-tab').classList.remove('border-blue-500', 'text-blue-500');
+            document.getElementById('customer-tab').classList.add('text-gray-500');
+        });
+
+        // Broker login form submission
+        document.getElementById('login-form-element').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Hide any existing messages
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+
+            // Show loading state
+            const button = document.getElementById('login-button');
+            const buttonText = document.getElementById('login-button-text');
+            const spinner = document.getElementById('login-spinner');
+
+            button.disabled = true;
+            buttonText.textContent = 'Signing in...';
+            spinner.classList.remove('hidden');
+
+            // Get form data
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Create request payload
+            const payload = {
+                email: email,
+                password: password
+            };
+
+            // Send login request
+            fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.errors && errorData.errors[0] ? errorData.errors[0].message : 'Login failed');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Show success message
+                document.getElementById('success-message').classList.remove('hidden');
+                document.getElementById('success-text').textContent = 'Login successful! Redirecting...';
+                
+                // Store token and user info
+                localStorage.setItem('auth_token', data.data.token);
+                localStorage.setItem('user_role', 'BROKER');
+                localStorage.setItem('user_name', email.split('@')[0]); // Use part of email as name
+                
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1000);
+            })
+            .catch(error => {
+                // Show error message
+                document.getElementById('error-message').classList.remove('hidden');
+                document.getElementById('error-text').textContent = error.message || 'An error occurred. Please try again.';
+                
+                // Reset button state
+                button.disabled = false;
+                buttonText.textContent = 'Login';
+                spinner.classList.add('hidden');
+            });
+        });
+        
+        // Customer form submission
+        document.getElementById('customer-form-element').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Hide any existing messages
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+
+            // Show loading state
+            const button = document.getElementById('customer-login-button');
+            const buttonText = document.getElementById('customer-button-text');
+            const spinner = document.getElementById('customer-spinner');
+
+            button.disabled = true;
+            buttonText.textContent = 'Accessing...';
+            spinner.classList.remove('hidden');
+
+            // Get form data
+            const loadId = document.getElementById('customer-load-id').value;
+            const email = document.getElementById('customer-email').value;
+            
+            // For customer tracking, we'll store the information and redirect
+            // In a real app, we would validate this information against the server
+            
+            // Show success message
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('success-text').textContent = 'Accessing your shipment information...';
+            
+            // Store customer info in localStorage
+            localStorage.setItem('auth_token', 'customer_tracking_token');
+            localStorage.setItem('user_role', 'CUSTOMER');
+            localStorage.setItem('user_name', email.split('@')[0]); // Use part of email as name
+            localStorage.setItem('load_id', loadId);
+            
+            // Redirect to dashboard after a short delay
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
+        });
+        
+        // Registration form submission
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Hide any existing messages
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+
+            // Show loading state
+            const button = document.getElementById('register-button');
+            const buttonText = document.getElementById('register-button-text');
+            const spinner = document.getElementById('register-spinner');
+
+            button.disabled = true;
+            buttonText.textContent = 'Registering...';
+            spinner.classList.remove('hidden');
+
+            // Get form data
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const role = document.getElementById('register-role').value;
+            
+            // Create request payload
+            const payload = {
+                name: name,
+                email: email,
+                password: password,
+                role: role
+            };
+
+            // Send registration request
+            fetch('/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.errors && errorData.errors[0] ? errorData.errors[0].message : 'Registration failed');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Show success message
+                document.getElementById('success-message').classList.remove('hidden');
+                document.getElementById('success-text').textContent = 'Registration successful! You can now log in.';
+                
+                // Reset form
+                document.getElementById('signup-form').reset();
+                
+                // Switch back to login form after a short delay
+                setTimeout(() => {
+                    // Switch to login form
+                    document.getElementById('register-form').classList.add('hidden');
+                    document.getElementById('broker-form').classList.remove('hidden');
+                    
+                    // Make sure broker tab is active
+                    document.getElementById('broker-tab').classList.add('border-blue-500', 'text-blue-500');
+                    document.getElementById('broker-tab').classList.remove('text-gray-500');
+                    document.getElementById('customer-tab').classList.remove('border-blue-500', 'text-blue-500');
+                    document.getElementById('customer-tab').classList.add('text-gray-500');
+                    
+                    // Pre-fill email field with the registered email
+                    document.getElementById('login-email').value = email;
+                    
+                    // Reset button state
+                    button.disabled = false;
+                    buttonText.textContent = 'Register';
+                    spinner.classList.add('hidden');
+                }, 2000);
+            })
+            .catch(error => {
+                // Show error message
+                document.getElementById('error-message').classList.remove('hidden');
+                document.getElementById('error-text').textContent = error.message || 'An error occurred. Please try again.';
+                
+                // Reset button state
+                button.disabled = false;
+                buttonText.textContent = 'Register';
+                spinner.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

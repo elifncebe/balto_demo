@@ -37,8 +37,23 @@ public class LoadService implements LoadUseCase {
         Load load = new Load();
         load.setOriginAddress(request.originAddress);
         load.setDestinationAddress(request.destinationAddress);
-        load.setPickupDate(request.pickupDate);
-        load.setDeliveryDate(request.deliveryDate);
+        
+        // Use pickupDateTime and deliveryDateTime fields from LoadRequest
+        // If they're null, try to convert pickupDate and deliveryEta to LocalDateTime
+        if (request.pickupDateTime != null) {
+            load.setPickupDate(request.pickupDateTime);
+        } else if (request.pickupDate != null) {
+            // Convert LocalDate to LocalDateTime (using start of day)
+            load.setPickupDate(request.pickupDate.atStartOfDay());
+        }
+        
+        if (request.deliveryDateTime != null) {
+            load.setDeliveryDate(request.deliveryDateTime);
+        } else if (request.deliveryEta != null) {
+            // Convert LocalDate to LocalDateTime (using start of day)
+            load.setDeliveryDate(request.deliveryEta.atStartOfDay());
+        }
+        
         load.setStatus(LoadStatus.PENDING);
         load.setBroker(broker);
         load.setCustomer(customer);
@@ -97,8 +112,23 @@ public class LoadService implements LoadUseCase {
         
         load.setOriginAddress(request.originAddress);
         load.setDestinationAddress(request.destinationAddress);
-        load.setPickupDate(request.pickupDate);
-        load.setDeliveryDate(request.deliveryDate);
+        
+        // Use pickupDateTime and deliveryDateTime fields from LoadRequest
+        // If they're null, try to convert pickupDate and deliveryEta to LocalDateTime
+        if (request.pickupDateTime != null) {
+            load.setPickupDate(request.pickupDateTime);
+        } else if (request.pickupDate != null) {
+            // Convert LocalDate to LocalDateTime (using start of day)
+            load.setPickupDate(request.pickupDate.atStartOfDay());
+        }
+        
+        if (request.deliveryDateTime != null) {
+            load.setDeliveryDate(request.deliveryDateTime);
+        } else if (request.deliveryEta != null) {
+            // Convert LocalDate to LocalDateTime (using start of day)
+            load.setDeliveryDate(request.deliveryEta.atStartOfDay());
+        }
+        
         load.setVehicleDetails(request.vehicleDetails);
         load.setNotes(request.notes);
         

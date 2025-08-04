@@ -34,6 +34,25 @@ public class ApiResponse<T> {
         response.errors.add(new Error(code, message));
         return response;
     }
+
+    public static <T> ApiResponse<T> error(Exception e) {
+        ApiResponse<T> response = new ApiResponse<>();
+        String message = e.getMessage() != null ? e.getMessage() : "An error occurred";
+        response.errors.add(new Error("INTERNAL_SERVER_ERROR", message));
+        return response;
+    }
+
+    public static <T> ApiResponse<T> unauthorized(String message) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.errors.add(new Error("UNAUTHORIZED", message != null ? message : "Authentication required"));
+        return response;
+    }
+
+    public static <T> ApiResponse<T> validationError(String message) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.errors.add(new Error("VALIDATION_ERROR", message));
+        return response;
+    }
     
     public static class Meta {
         public LocalDateTime timestamp;

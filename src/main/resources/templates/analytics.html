@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Balto</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#151326',
+                        'primary-dark': '#0D0C18',
+                        'primary-light': '#2E294E',
+                        accent: '#6A5ACD',
+                        'accent-light': '#8A4FFF',
+                        secondary: '#2E294E',
+                        success: '#4CAF50',
+                        warning: '#FF9800',
+                        danger: '#F44336',
+                        light: '#F5F5F7',
+                        dark: '#0D0C18',
+                        gray: '#9E9E9E',
+                        'lavender': '#E6E6FA',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .btn-primary {
+                @apply bg-accent hover:bg-accent-light text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5;
+            }
+            .btn-secondary {
+                @apply bg-secondary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out;
+            }
+            .metric-card {
+                @apply bg-white rounded-lg shadow-md p-6 border border-lavender/30 transition-all duration-300 hover:shadow-lg;
+            }
+            .metric-value {
+                @apply text-3xl font-bold text-primary mt-2;
+            }
+            .metric-label {
+                @apply text-sm text-gray-500;
+            }
+            .metric-change {
+                @apply text-sm font-medium mt-2 flex items-center;
+            }
+            .metric-change-positive {
+                @apply text-success;
+            }
+            .metric-change-negative {
+                @apply text-danger;
+            }
+            .chart-container {
+                @apply bg-white rounded-lg shadow-md p-6 border border-lavender/30;
+            }
+            .chart-title {
+                @apply text-xl font-bold text-secondary mb-4 flex items-center;
+            }
+            .filter-pill {
+                @apply px-3 py-1 rounded-full text-xs font-medium bg-lavender/50 text-primary cursor-pointer hover:bg-lavender transition-colors;
+            }
+            .filter-pill-active {
+                @apply bg-accent text-white hover:bg-accent-light;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-lavender to-light min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold">Balto</h1>
+                <p class="ml-3 text-lavender">Shipping that matters</p>
+            </div>
+            <div class="flex items-center">
+                <span class="mr-4" sec:authentication="name">Username</span>
+                <a href="/logout" class="text-white hover:text-lavender transition">Logout</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex space-x-8">
+                <a href="/dashboard" class="py-4 px-2 text-gray-500 font-semibold hover:text-accent">
+                    Dashboard
+                </a>
+                <a href="/loads/new" class="py-4 px-2 text-gray-500 font-semibold hover:text-accent">
+                    Create Load
+                </a>
+                <a href="/analytics" class="py-4 px-2 text-accent border-b-2 border-accent font-semibold">
+                    Analytics
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Page Header -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-secondary">Analytics Dashboard</h2>
+                <p class="text-gray-600 mt-1">Key metrics and performance indicators</p>
+            </div>
+            
+            <!-- Quick Date Filters -->
+            <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
+                <span class="filter-pill filter-pill-active" data-range="7">Last 7 days</span>
+                <span class="filter-pill" data-range="30">Last 30 days</span>
+                <span class="filter-pill" data-range="90">Last 90 days</span>
+                <span class="filter-pill" data-range="custom">Custom Range</span>
+            </div>
+        </div>
+        
+        <!-- Date Range Filter (hidden by default, shown when "Custom Range" is clicked) -->
+        <div id="custom-date-range" class="bg-white rounded-lg shadow-md p-4 mb-6 hidden">
+            <form action="/analytics" method="get" class="flex flex-wrap items-end gap-4">
+                <div class="w-full md:w-auto">
+                    <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" th:value="${startDate}" class="form-input rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50">
+                </div>
+                
+                <div class="w-full md:w-auto">
+                    <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input type="date" id="endDate" name="endDate" th:value="${endDate}" class="form-input rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50">
+                </div>
+                
+                <div class="w-full md:w-auto">
+                    <button type="submit" class="btn-secondary">
+                        Apply Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Analytics Overview -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-secondary">Analytics Overview</h2>
+        </div>
+        
+        <!-- Summary Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- VINs This Month -->
+            <div class="metric-card">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-accent/10 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-secondary">VINs This Month</h3>
+                    </div>
+                </div>
+                <p class="metric-value">127</p>
+                <p class="metric-change metric-change-positive">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                    +29.6% from last month
+                </p>
+            </div>
+            
+            <!-- Avg Response Time -->
+            <div class="metric-card">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-accent/10 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-secondary">Avg Response Time</h3>
+                    </div>
+                </div>
+                <p class="metric-value">2.3 hours</p>
+                <p class="text-sm text-gray-500">
+                    Target: &lt; 4 hours
+                </p>
+            </div>
+            
+            <!-- Call Reduction -->
+            <div class="metric-card">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-accent/10 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-secondary">Call Reduction</h3>
+                    </div>
+                </div>
+                <p class="metric-value">34%</p>
+                <p class="text-sm text-gray-500">
+                    vs. pre-Balto period
+                </p>
+            </div>
+            
+            <!-- Customer Retention -->
+            <div class="metric-card">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-accent/10 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-secondary">Customer Retention</h3>
+                    </div>
+                </div>
+                <p class="metric-value">87%</p>
+                <p class="text-sm text-gray-500">
+                    Return customers
+                </p>
+            </div>
+        </div>
+        
+        <!-- Second Row of Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Outstanding Balance -->
+            <div class="metric-card">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-accent/10 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-secondary">Outstanding Balance</h3>
+                    </div>
+                </div>
+                <p class="metric-value">$12,450</p>
+                <p class="text-sm text-gray-500">
+                    Based on VIN count
+                </p>
+            </div>
+            
+            <!-- Load Status -->
+            <div class="metric-card">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-accent/10 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-secondary">Load Status</h3>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mt-2">
+                    <div>
+                        <p class="text-lg font-semibold text-primary">23</p>
+                        <p class="text-sm text-gray-500">Active Loads</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-semibold text-primary">45</p>
+                        <p class="text-sm text-gray-500">Delivered This Month</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Message Breakdown -->
+            <div class="metric-card">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-accent/10 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-secondary">Message Breakdown</h3>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 mt-2">
+                    <div>
+                        <p class="text-lg font-semibold text-primary">456</p>
+                        <p class="text-sm text-gray-500">SMS</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-semibold text-primary">623</p>
+                        <p class="text-sm text-gray-500">Email</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-semibold text-primary">168</p>
+                        <p class="text-sm text-gray-500">In-App</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Row 1 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- VINs Per Month Chart -->
+            <div class="chart-container">
+                <div class="chart-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    VINs Per Month
+                </div>
+                
+                <!-- Chart Container -->
+                <div class="h-64">
+                    <canvas id="vinsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Message Volume by Channel -->
+            <div class="chart-container">
+                <div class="chart-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                    </svg>
+                    Message Volume by Channel
+                </div>
+                
+                <!-- Chart Container -->
+                <div class="h-64 flex items-center justify-center">
+                    <div class="w-full md:w-2/3">
+                        <canvas id="channelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Row 2 -->
+        <div class="grid grid-cols-1 gap-6 mb-8">
+            <!-- Message Volume Trend -->
+            <div class="chart-container">
+                <div class="chart-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                    Message Volume Trend
+                </div>
+                
+                <!-- Chart Container -->
+                <div class="h-64">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Activity -->
+        <div class="chart-container">
+            <div class="chart-title">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                User Activity
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-lavender/30">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
+                                User
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
+                                Role
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
+                                Loads Created
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
+                                Messages Sent
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
+                                Last Active
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- User activity rows -->
+                        <tr th:each="user : ${userActivity}" class="hover:bg-lavender/10 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold" th:text="${#strings.substring(user.name,0,1)}">J</div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-primary" th:text="${user.name}">Jane Smith</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-accent/10 text-accent" th:text="${user.role}">BROKER</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-primary" th:text="${user.loadsCreated}">24</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-primary" th:text="${user.messagesSent}">156</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-primary" th:text="${#temporals.format(user.lastActive, 'MMM dd, yyyy HH:mm')}">
+                                Aug 3, 2025 14:30
+                            </td>
+                        </tr>
+                        
+                        <!-- Example rows for demonstration -->
+                        <tr th:if="${#lists.isEmpty(userActivity)}" class="hover:bg-lavender/10 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">J</div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-primary">Jane Smith</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-accent/10 text-accent">BROKER</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-primary">24</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-primary">156</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-primary">
+                                Aug 3, 2025 14:30
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(userActivity)}" class="hover:bg-lavender/10 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">J</div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-primary">John Doe</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-accent/10 text-accent">DISPATCHER</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-primary">18</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-primary">92</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-primary">
+                                Aug 2, 2025 09:15
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(userActivity)}" class="hover:bg-lavender/10 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">R</div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-primary">Robert Johnson</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-accent/10 text-accent">ADMIN</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-primary">5</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-primary">43</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-primary">
+                                Aug 3, 2025 11:45
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center items-center mb-4">
+                <h2 class="text-2xl font-bold">Balto</h2>
+                <span class="mx-3 text-accent">•</span>
+                <p class="text-lavender">Shipping that matters</p>
+            </div>
+            <p class="mb-2">Balto Logistics Management System v0.1</p>
+            <p class="text-lavender text-sm">
+                <a href="/api/health" class="text-lavender hover:text-white transition mx-2">API Status</a>
+                <a href="/hello" class="text-lavender hover:text-white transition mx-2">Hello Endpoint</a>
+                <a href="/terminate" class="text-lavender hover:text-white transition mx-2">Terminate Application</a>
+            </p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript for Charts -->
+    <script>
+        // Initialize charts when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Date range filter handling
+            const filterPills = document.querySelectorAll('.filter-pill');
+            const customDateRange = document.getElementById('custom-date-range');
+            
+            filterPills.forEach(pill => {
+                pill.addEventListener('click', function() {
+                    // Remove active class from all pills
+                    filterPills.forEach(p => p.classList.remove('filter-pill-active'));
+                    // Add active class to clicked pill
+                    this.classList.add('filter-pill-active');
+                    
+                    // Show/hide custom date range
+                    if (this.dataset.range === 'custom') {
+                        customDateRange.classList.remove('hidden');
+                    } else {
+                        customDateRange.classList.add('hidden');
+                    }
+                });
+            });
+            
+            // VINs Per Month Chart
+            const vinsCtx = document.getElementById('vinsChart').getContext('2d');
+            const vinsChart = new Chart(vinsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                    datasets: [{
+                        label: 'VINs Processed',
+                        data: [30, 45, 60, 40, 75, 90, 65, 80],
+                        backgroundColor: '#6A5ACD',
+                        borderColor: '#151326',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#8A4FFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#151326',
+                            titleColor: '#E6E6FA',
+                            bodyColor: '#FFFFFF',
+                            cornerRadius: 8,
+                            padding: 12
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)'
+                            },
+                            ticks: {
+                                color: '#151326'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#151326'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Message Volume by Channel Chart
+            const channelCtx = document.getElementById('channelChart').getContext('2d');
+            const channelChart = new Chart(channelCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Email', 'SMS', 'In-App'],
+                    datasets: [{
+                        data: [45, 30, 25],
+                        backgroundColor: ['#151326', '#2E294E', '#FF9800'],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#151326',
+                                padding: 20,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#151326',
+                            titleColor: '#E6E6FA',
+                            bodyColor: '#FFFFFF',
+                            cornerRadius: 8,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+            
+            // Message Volume Trend Chart
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            const trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                    datasets: [
+                        {
+                            label: 'Email',
+                            data: [120, 150, 180, 170, 160, 190, 210, 250],
+                            borderColor: '#151326',
+                            backgroundColor: 'rgba(21, 19, 38, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'SMS',
+                            data: [80, 100, 110, 120, 130, 140, 150, 160],
+                            borderColor: '#2E294E',
+                            backgroundColor: 'rgba(46, 41, 78, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'In-App',
+                            data: [50, 60, 70, 80, 90, 100, 110, 120],
+                            borderColor: '#FF9800',
+                            backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#151326',
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#151326',
+                            titleColor: '#E6E6FA',
+                            bodyColor: '#FFFFFF',
+                            cornerRadius: 8,
+                            padding: 12,
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)'
+                            },
+                            ticks: {
+                                color: '#151326'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#151326'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    elements: {
+                        point: {
+                            radius: 3,
+                            hoverRadius: 6
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

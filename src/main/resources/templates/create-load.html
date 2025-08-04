@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Load - Balto</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#151326',
+                        'primary-dark': '#0D0C18',
+                        'primary-light': '#2E294E',
+                        accent: '#6A5ACD',
+                        'accent-light': '#8A4FFF',
+                        secondary: '#2E294E',
+                        success: '#4CAF50',
+                        warning: '#FF9800',
+                        danger: '#F44336',
+                        light: '#F5F5F7',
+                        dark: '#0D0C18',
+                        gray: '#9E9E9E',
+                        'lavender': '#E6E6FA',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .btn-primary {
+                @apply bg-accent hover:bg-accent-light text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5;
+            }
+            .btn-secondary {
+                @apply bg-secondary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out;
+            }
+            .btn-danger {
+                @apply bg-danger hover:bg-danger/80 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out;
+            }
+            .form-input {
+                @apply w-full px-4 py-3 border border-lavender rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent bg-light/50 text-primary transition duration-200 ease-in-out;
+            }
+            .form-label {
+                @apply block text-primary font-medium mb-2;
+            }
+            .form-group {
+                @apply mb-4;
+            }
+            .form-section {
+                @apply bg-white rounded-lg shadow-md p-6 mb-6 border border-lavender/30;
+            }
+            .form-section-title {
+                @apply text-xl font-bold text-primary mb-4;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-lavender to-light min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold">Balto</h1>
+                <p class="ml-3 text-lavender">Shipping that matters</p>
+            </div>
+            <div class="flex items-center">
+                <span class="mr-4" sec:authentication="name">Username</span>
+                <a href="/logout" class="text-white hover:text-lavender transition">Logout</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex space-x-8">
+                <a href="/dashboard" class="py-4 px-2 text-gray-500 font-semibold hover:text-accent">
+                    Dashboard
+                </a>
+                <a href="/loads/new" class="py-4 px-2 text-accent border-b-2 border-accent font-semibold">
+                    Create Load
+                </a>
+                <a href="/analytics" class="py-4 px-2 text-gray-500 font-semibold hover:text-accent">
+                    Analytics
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Breadcrumb -->
+        <div class="flex items-center text-sm text-gray-500 mb-6">
+            <a href="/dashboard" class="hover:text-primary">Dashboard</a>
+            <span class="mx-2">›</span>
+            <span class="text-gray-700">Create New Load</span>
+        </div>
+        
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-secondary">Create New Load</h2>
+            <p class="text-gray-600 mt-1">Enter the details for the new load below</p>
+        </div>
+        
+        <!-- Create Load Form -->
+        <form th:action="@{/web/loads/create}" method="post" th:object="${loadRequest}">
+            <!-- Customer Information Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Customer Information</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="customerName" class="form-label">Name</label>
+                        <input 
+                            type="text" 
+                            id="customerName" 
+                            name="customerName" 
+                            th:field="*{customerName}"
+                            class="form-input" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerCompany" class="form-label">Company (Optional)</label>
+                        <input 
+                            type="text" 
+                            id="customerCompany" 
+                            name="customerCompany"
+                            th:field="*{customerCompany}" 
+                            class="form-input"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerEmail" class="form-label">Email</label>
+                        <input 
+                            type="email" 
+                            id="customerEmail" 
+                            name="customerEmail"
+                            th:field="*{customerEmail}" 
+                            class="form-input" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerPhone" class="form-label">Phone</label>
+                        <input 
+                            type="tel" 
+                            id="customerPhone" 
+                            name="customerPhone"
+                            th:field="*{customerPhone}" 
+                            class="form-input" 
+                            required
+                        >
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pickup Information Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Pickup Information</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group md:col-span-2">
+                        <label for="pickupAddress" class="form-label">Address</label>
+                        <input 
+                            type="text" 
+                            id="pickupAddress" 
+                            name="pickupAddress"
+                            th:field="*{pickupAddress}" 
+                            class="form-input" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pickupCity" class="form-label">City</label>
+                        <input 
+                            type="text" 
+                            id="pickupCity" 
+                            name="pickupCity"
+                            th:field="*{pickupCity}" 
+                            class="form-input" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label for="pickupState" class="form-label">State</label>
+                            <input 
+                                type="text" 
+                                id="pickupState" 
+                                name="pickupState"
+                                th:field="*{pickupState}" 
+                                class="form-input" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pickupZip" class="form-label">ZIP Code</label>
+                            <input 
+                                type="text" 
+                                id="pickupZip" 
+                                name="pickupZip"
+                                th:field="*{pickupZip}" 
+                                class="form-input" 
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pickupDate" class="form-label">Pickup Date</label>
+                        <input 
+                            type="date" 
+                            id="pickupDate" 
+                            name="pickupDate"
+                            th:field="*{pickupDate}" 
+                            class="form-input" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pickupTime" class="form-label">Pickup Time Window</label>
+                        <input 
+                            type="text" 
+                            id="pickupTime" 
+                            name="pickupTime"
+                            th:field="*{pickupTime}" 
+                            class="form-input" 
+                            placeholder="e.g., 9:00 AM - 12:00 PM"
+                        >
+                    </div>
+                    
+                    <div class="form-group md:col-span-2">
+                        <label for="pickupNotes" class="form-label">Pickup Notes (Optional)</label>
+                        <textarea 
+                            id="pickupNotes" 
+                            name="pickupNotes"
+                            th:field="*{pickupNotes}" 
+                            class="form-input" 
+                            rows="2"
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Delivery Information Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Delivery Information</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group md:col-span-2">
+                        <label for="deliveryAddress" class="form-label">Address</label>
+                        <input 
+                            type="text" 
+                            id="deliveryAddress" 
+                            name="deliveryAddress"
+                            th:field="*{deliveryAddress}" 
+                            class="form-input" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deliveryCity" class="form-label">City</label>
+                        <input 
+                            type="text" 
+                            id="deliveryCity" 
+                            name="deliveryCity"
+                            th:field="*{deliveryCity}" 
+                            class="form-input" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label for="deliveryState" class="form-label">State</label>
+                            <input 
+                                type="text" 
+                                id="deliveryState" 
+                                name="deliveryState"
+                                th:field="*{deliveryState}" 
+                                class="form-input" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="deliveryZip" class="form-label">ZIP Code</label>
+                            <input 
+                                type="text" 
+                                id="deliveryZip" 
+                                name="deliveryZip"
+                                th:field="*{deliveryZip}" 
+                                class="form-input" 
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deliveryEta" class="form-label">Estimated Delivery Date</label>
+                        <input 
+                            type="date" 
+                            id="deliveryEta" 
+                            name="deliveryEta"
+                            th:field="*{deliveryEta}" 
+                            class="form-input" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deliveryTime" class="form-label">Delivery Time Window</label>
+                        <input 
+                            type="text" 
+                            id="deliveryTime" 
+                            name="deliveryTime"
+                            th:field="*{deliveryTime}" 
+                            class="form-input" 
+                            placeholder="e.g., 9:00 AM - 12:00 PM"
+                        >
+                    </div>
+                    
+                    <div class="form-group md:col-span-2">
+                        <label for="deliveryNotes" class="form-label">Delivery Notes (Optional)</label>
+                        <textarea 
+                            id="deliveryNotes" 
+                            name="deliveryNotes"
+                            th:field="*{deliveryNotes}" 
+                            class="form-input" 
+                            rows="2"
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vehicle Information Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Vehicle Information</h3>
+                
+                <div class="mb-4">
+                    <button type="button" id="add-vehicle-btn" class="btn-secondary text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add Vehicle
+                    </button>
+                </div>
+                
+                <div id="vinEntries">
+                    <!-- First VIN entry (always present) -->
+                    <div class="vin-entry border-b border-gray-200 pb-4 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <div class="form-group md:col-span-2">
+                                <label for="vins[0].vinNumber" class="form-label">VIN</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[0].vinNumber" 
+                                    name="vins[0].vinNumber"
+                                    th:field="*{vins[0].vinNumber}" 
+                                    class="form-input" 
+                                    required
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vins[0].make" class="form-label">Make</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[0].make" 
+                                    name="vins[0].make"
+                                    th:field="*{vins[0].make}" 
+                                    class="form-input" 
+                                    required
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vins[0].model" class="form-label">Model</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[0].model" 
+                                    name="vins[0].model"
+                                    th:field="*{vins[0].model}" 
+                                    class="form-input" 
+                                    required
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vins[0].year" class="form-label">Year</label>
+                                <input 
+                                    type="number" 
+                                    id="vins[0].year" 
+                                    name="vins[0].year"
+                                    th:field="*{vins[0].year}" 
+                                    class="form-input" 
+                                    required
+                                >
+                            </div>
+                            
+                            <div class="form-group md:col-span-2">
+                                <label for="vins[0].color" class="form-label">Color</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[0].color" 
+                                    name="vins[0].color"
+                                    th:field="*{vins[0].color}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group md:col-span-3">
+                                <label for="vins[0].notes" class="form-label">Notes (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[0].notes" 
+                                    name="vins[0].notes"
+                                    th:field="*{vins[0].notes}" 
+                                    class="form-input"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Second VIN entry -->
+                    <div class="vin-entry border-b border-gray-200 pb-4 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <div class="form-group md:col-span-2">
+                                <label for="vins[1].vinNumber" class="form-label">VIN</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[1].vinNumber" 
+                                    name="vins[1].vinNumber"
+                                    th:field="*{vins[1].vinNumber}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vins[1].make" class="form-label">Make</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[1].make" 
+                                    name="vins[1].make"
+                                    th:field="*{vins[1].make}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vins[1].model" class="form-label">Model</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[1].model" 
+                                    name="vins[1].model"
+                                    th:field="*{vins[1].model}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vins[1].year" class="form-label">Year</label>
+                                <input 
+                                    type="number" 
+                                    id="vins[1].year" 
+                                    name="vins[1].year"
+                                    th:field="*{vins[1].year}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group md:col-span-2">
+                                <label for="vins[1].color" class="form-label">Color</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[1].color" 
+                                    name="vins[1].color"
+                                    th:field="*{vins[1].color}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group md:col-span-3">
+                                <label for="vins[1].notes" class="form-label">Notes (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[1].notes" 
+                                    name="vins[1].notes"
+                                    th:field="*{vins[1].notes}" 
+                                    class="form-input"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Third VIN entry -->
+                    <div class="vin-entry">
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <div class="form-group md:col-span-2">
+                                <label for="vins[2].vinNumber" class="form-label">VIN</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[2].vinNumber" 
+                                    name="vins[2].vinNumber"
+                                    th:field="*{vins[2].vinNumber}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vins[2].make" class="form-label">Make</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[2].make" 
+                                    name="vins[2].make"
+                                    th:field="*{vins[2].make}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vins[2].model" class="form-label">Model</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[2].model" 
+                                    name="vins[2].model"
+                                    th:field="*{vins[2].model}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vins[2].year" class="form-label">Year</label>
+                                <input 
+                                    type="number" 
+                                    id="vins[2].year" 
+                                    name="vins[2].year"
+                                    th:field="*{vins[2].year}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group md:col-span-2">
+                                <label for="vins[2].color" class="form-label">Color</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[2].color" 
+                                    name="vins[2].color"
+                                    th:field="*{vins[2].color}" 
+                                    class="form-input"
+                                >
+                            </div>
+                            
+                            <div class="form-group md:col-span-3">
+                                <label for="vins[2].notes" class="form-label">Notes (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    id="vins[2].notes" 
+                                    name="vins[2].notes"
+                                    th:field="*{vins[2].notes}" 
+                                    class="form-input"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pricing Information Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Pricing Information</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="priceAmount" class="form-label">Price ($)</label>
+                        <input 
+                            type="number" 
+                            id="priceAmount" 
+                            name="priceAmount"
+                            class="form-input" 
+                            min="0"
+                            step="0.01"
+                            placeholder="0.00"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentMethodType" class="form-label">Payment Method</label>
+                        <select 
+                            id="paymentMethodType" 
+                            name="paymentMethodType"
+                            class="form-input"
+                        >
+                            <option value="">Select payment method</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Check">Check</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="scheduledDate" class="form-label">Scheduled Date</label>
+                        <input 
+                            type="date" 
+                            id="scheduledDate" 
+                            name="scheduledDate"
+                            class="form-input"
+                        >
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Notes Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Additional Notes</h3>
+                
+                <div class="form-group">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea 
+                        id="notes" 
+                        name="notes"
+                        th:field="*{notes}" 
+                        class="form-input" 
+                        rows="4"
+                    ></textarea>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-4 mt-6">
+                <a href="/dashboard" class="btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn-primary">
+                    Create Load
+                </button>
+            </div>
+        </form>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center items-center mb-4">
+                <h2 class="text-2xl font-bold">Balto</h2>
+                <span class="mx-3 text-accent">•</span>
+                <p class="text-lavender">Shipping that matters</p>
+            </div>
+            <p class="mb-2">Balto Logistics Management System v0.1</p>
+            <p class="text-lavender text-sm">
+                <a href="/api/health" class="text-lavender hover:text-white transition mx-2">API Status</a>
+                <a href="/hello" class="text-lavender hover:text-white transition mx-2">Hello Endpoint</a>
+                <a href="/terminate" class="text-lavender hover:text-white transition mx-2">Terminate Application</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
