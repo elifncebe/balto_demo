@@ -11,14 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class HomeController {
 
     @GetMapping("/")
-    @ResponseBody
     public String home() {
-        return "<html><body>" +
-               "<h1>Balto Test Application</h1>" +
-               "<p>The application is running successfully!</p>" +
-               "<p>This is a test application with RabbitMQ integration disabled.</p>" +
-               "<p><a href='/actuator'>View Actuator Endpoints</a></p>" +
-               "</body></html>";
+        return "redirect:/index.html";
     }
 
     @GetMapping("/api/health")

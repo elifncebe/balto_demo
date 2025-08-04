@@ -1,0 +1,180 @@
+/* Main CSS for Balto Application */
+
+:root {
+  --primary-color: #3498db;
+  --primary-dark: #2980b9;
+  --secondary-color: #2c3e50;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+  --light-color: #ecf0f1;
+  --dark-color: #34495e;
+  --gray-color: #95a5a6;
+  --white-color: #ffffff;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: var(--secondary-color);
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+/* Auth Container */
+.auth-container {
+  max-width: 500px;
+  margin: 100px auto;
+  padding: 20px;
+}
+
+.auth-tabs {
+  margin-bottom: 20px;
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: var(--secondary-color);
+  color: var(--white-color);
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+.sidebar .nav-link {
+  color: var(--light-color);
+  padding: 10px 20px;
+  margin: 5px 0;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  border: none;
+  background: none;
+}
+
+.sidebar .nav-link:hover, 
+.sidebar .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--white-color);
+}
+
+.sidebar .nav-link i {
+  margin-right: 10px;
+}
+
+/* Cards */
+.card {
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  border: none;
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+/* Load Items */
+.load-item {
+  transition: transform 0.2s;
+}
+
+.load-item:hover {
+  transform: translateY(-5px);
+}
+
+/* Status Badges */
+.badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.badge-status-new {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+}
+
+.badge-status-in-progress {
+  background-color: var(--warning-color);
+  color: var(--white-color);
+}
+
+.badge-status-completed {
+  background-color: var(--success-color);
+  color: var(--white-color);
+}
+
+.badge-status-cancelled {
+  background-color: var(--danger-color);
+  color: var(--white-color);
+}
+
+/* Message Items */
+.message-item {
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+.message-received {
+  background-color: var(--light-color);
+  align-self: flex-start;
+}
+
+.message-sent {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  align-self: flex-end;
+}
+
+/* Channel Items */
+.channel-item {
+  transition: transform 0.2s;
+}
+
+.channel-item:hover {
+  transform: translateY(-5px);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .auth-container {
+    margin: 50px auto;
+    padding: 10px;
+  }
+  
+  .message-item {
+    max-width: 90%;
+  }
+}
