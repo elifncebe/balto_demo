@@ -1,9 +1,11 @@
 package com.baltotest.messaging;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "spring.rabbitmq.enabled", havingValue = "true", matchIfMissing = false)
 public class UserRegisteredEventListener {
 
     private static final String QUEUE_NAME = "user-registered-queue";

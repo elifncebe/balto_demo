@@ -5,7 +5,7 @@ import com.baltotest.application.dto.ApiResponse;
 import com.baltotest.application.dto.AuthRequest;
 import com.baltotest.application.dto.AuthResponse;
 import com.baltotest.application.dto.RegisterRequest;
-import com.baltotest.messaging.UserRegisteredEventPublisher;
+import com.baltotest.messaging.UserRegisteredEventPublisherInterface;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthUseCase authUseCase;
-    private final UserRegisteredEventPublisher eventPublisher;
+    private final UserRegisteredEventPublisherInterface eventPublisher;
 
-    public AuthController(AuthUseCase authUseCase, UserRegisteredEventPublisher eventPublisher) {
+    public AuthController(AuthUseCase authUseCase, UserRegisteredEventPublisherInterface eventPublisher) {
         this.authUseCase = authUseCase;
         this.eventPublisher = eventPublisher;
     }

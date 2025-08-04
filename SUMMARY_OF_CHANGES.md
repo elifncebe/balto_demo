@@ -1,65 +1,78 @@
 # Summary of Changes
 
-## Migration from WebSocket to RabbitMQ
-
-The application has been updated to use RabbitMQ for messaging instead of WebSocket. This change provides several benefits:
-
-1. **Improved Reliability**: RabbitMQ provides guaranteed message delivery with acknowledgments and persistence.
-2. **Better Scalability**: RabbitMQ can handle high throughput and scales horizontally.
-3. **Decoupled Architecture**: Services can communicate asynchronously without direct dependencies.
-4. **Message Routing**: RabbitMQ supports sophisticated routing patterns with exchanges and queues.
-
-### Changes Made:
-
-1. Removed WebSocket configuration and controllers:
-   - Disabled `WebSocketConfig.java`
-   - Removed `WebSocketController.java` implementation
-   - Removed `WebSocketEventListener.java` implementation
-
-2. Implemented RabbitMQ messaging:
-   - Enhanced `RabbitMqConfig.java` with comprehensive exchange and queue configurations
-   - Created `UserRegisteredEventListener.java` to handle user registration events
-   - Added `MessageEventPublisher.java` for publishing message-related events
-   - Added `MessageEventListener.java` for consuming message-related events
-
-3. Updated dependencies:
-   - Removed `spring-boot-starter-websocket` dependency
-   - Retained `spring-boot-starter-amqp` for RabbitMQ support
-
-## Adoption of Superdiapatch API Format
-
-All API endpoints have been updated to follow the superdiapatch API format, which provides a standardized response structure:
-
-```json
-{
-  "data": { "key": "value" },
-  "meta": {
-    "timestamp": "2025-07-31T23:05:00",
-    "version": "1.0"
-  },
-  "errors": []
-}
+## Issue
+The application was getting stuck during startup at 80% execution with the following message:
+```
+<==========---> 80% EXECUTING [2m 6s]
+> :bootRun
 ```
 
-### Changes Made:
+This was happening because the application was trying to connect to RabbitMQ, but either RabbitMQ was not running or the connection details were incorrect.
 
-1. Created `ApiResponse.java` class to standardize all API responses
-2. Updated all controllers to wrap their responses in the ApiResponse format
-3. Enhanced `GlobalExceptionHandler.java` to use the ApiResponse format for error responses
+## Previous Changes
+In a previous update, we made the following changes to address RabbitMQ connection issues:
 
-## Test Improvements
+1. Made all RabbitMQ-related components conditional based on a property `spring.rabbitmq.enabled`:
+   - Added `@ConditionalOnProperty(name = "spring.rabbitmq.enabled", havingValue = "true", matchIfMissing = false)` to:
+     - RabbitMqConfig
+     - UserRegisteredEventListener
+     - MessageEventListener
+     - UserRegisteredEventPublisher
+     - MessageEventPublisher
 
-The test suite has been simplified to ensure reliable builds:
+2. Added RabbitMQ configuration properties to application.properties:
+   - Set `spring.rabbitmq.enabled=false` by default
+   - Added sensible defaults for RabbitMQ connection properties
 
-1. Created a minimal test class that doesn't load the Spring context
-2. Added TestConfig to properly mock RabbitMQ components
+## Current Issue
+After the previous changes, we encountered a new issue:
+```
+Parameter 1 of constructor in com.baltotest.adapter.controller.AuthController required a bean of type 'com.baltotest.messaging.UserRegisteredEventPublisher' that could not be found.
+```
 
-## Recommendations for Using the Application
+This happened because the AuthController was directly depending on the UserRegisteredEventPublisher, which is not available when RabbitMQ is disabled.
 
-1. **RabbitMQ Setup**: Ensure RabbitMQ is running before starting the application. The default configuration expects RabbitMQ to be available at localhost:5672 with guest/guest credentials.
+## Solution
+To resolve this issue, we made the following changes:
 
-2. **API Responses**: All API responses now follow the superdiapatch format. Client applications should be updated to handle this standardized response structure.
+1. Created an interface `UserRegisteredEventPublisherInterface` with the method:
+   ```java
+   void publishUserRegistered(String email, String name);
+   ```
 
-3. **Event-Driven Architecture**: The application now uses an event-driven architecture with RabbitMQ. Services can publish events and subscribe to relevant topics without direct coupling.
+2. Updated the existing `UserRegisteredEventPublisher` to implement this interface.
 
-4. **Testing**: When writing tests, be aware that loading the full application context may be challenging due to the complex dependencies. Consider using more focused tests that mock external dependencies.
+3. Created a no-op implementation `NoOpUserRegisteredEventPublisher` that:
+   - Implements the same interface
+   - Is conditionally created when RabbitMQ is disabled (`spring.rabbitmq.enabled=false`)
+   - Simply logs a message instead of trying to publish to RabbitMQ
+
+4. Updated the `AuthController` to depend on the interface instead of the concrete implementation:
+   ```java
+   private final UserRegisteredEventPublisherInterface eventPublisher;
+
+   public AuthController(AuthUseCase authUseCase, UserRegisteredEventPublisherInterface eventPublisher) {
+       this.authUseCase = authUseCase;
+       this.eventPublisher = eventPublisher;
+   }
+   ```
+
+## How It Works
+With these changes:
+
+1. When `spring.rabbitmq.enabled=true`:
+   - The real `UserRegisteredEventPublisher` is created and injected into the `AuthController`
+   - Events are published to RabbitMQ
+
+2. When `spring.rabbitmq.enabled=false` (default):
+   - The `NoOpUserRegisteredEventPublisher` is created and injected into the `AuthController`
+   - Events are logged but not published to RabbitMQ
+   - The application doesn't try to connect to RabbitMQ
+
+This approach follows the Dependency Inversion Principle, where high-level modules (AuthController) depend on abstractions (UserRegisteredEventPublisherInterface) rather than concrete implementations.
+
+## Benefits
+1. The application can start successfully even if RabbitMQ is not available
+2. RabbitMQ functionality can be easily enabled when needed
+3. The code is more maintainable and follows SOLID principles
+4. The application is more resilient to infrastructure changes

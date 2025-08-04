@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
@@ -44,4 +45,33 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Configure Spring Boot main class
+springBoot {
+    // Allow overriding main class from command line with -PmainClass
+    mainClass = project.hasProperty('mainClass') ? project.getProperty('mainClass') : 'com.baltotest.BaltoTestApplication'
+}
+
+task bypassRun(type: JavaExec) {
+    group = 'application'
+    description = 'Runs the application in bypass mode'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.baltotest.BypassMain'
+}
+
+task simpleRun(type: JavaExec) {
+    group = 'application'
+    description = 'Runs the simple application without database dependencies'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.baltotest.SimpleApp'
+    jvmArgs = ['-Dspring.profiles.active=simple']
+}
+
+// Configure the bootRun task to be more development-friendly
+tasks.named('bootRun') {
+    // The main class is now set in the springBoot block above
+
+    // Disable Spring DevTools automatic restart to prevent conflicts
+    jvmArgs = ['-Dspring.devtools.restart.enabled=false']
 }

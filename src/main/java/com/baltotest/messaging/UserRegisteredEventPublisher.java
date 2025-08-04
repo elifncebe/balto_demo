@@ -1,10 +1,12 @@
 package com.baltotest.messaging;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserRegisteredEventPublisher {
+@ConditionalOnProperty(name = "spring.rabbitmq.enabled", havingValue = "true")
+public class UserRegisteredEventPublisher implements UserRegisteredEventPublisherInterface {
 
     private final RabbitTemplate rabbitTemplate;
     private static final String EXCHANGE_NAME = "user-events";
