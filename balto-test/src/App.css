@@ -190,102 +190,459 @@
   margin: 0 auto;
 }
 
-/* Driver Readiness Styles */
-.driver-readiness {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 20px;
+/* Customer Dashboard Styles */
+
+/* Shipments/Loads Styles */
+.customer-loads {
+  padding: 20px 0;
 }
 
-.driver-readiness h2 {
+.customer-loads h2 {
   margin-bottom: 20px;
   color: #1E1D39;
   font-size: 24px;
 }
 
-.readiness-stats {
+.active-shipment {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.shipment-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.stat-card {
-  background-color: #F4F2F2;
-  border-radius: 8px;
-  padding: 20px;
-  flex: 1;
-  margin: 0 10px 10px 0;
-  min-width: 200px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.shipment-header h3 {
+  margin: 0;
+  color: #1E1D39;
+  font-size: 18px;
 }
 
-.stat-card h3 {
-  margin-bottom: 10px;
+.shipment-id {
+  color: #696B6F;
+  font-size: 14px;
+}
+
+.shipment-route {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.origin, .destination {
+  display: flex;
+  align-items: flex-start;
+}
+
+.location-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 12px;
+  margin-top: 4px;
+}
+
+.origin-dot {
+  background-color: #6475D4;
+}
+
+.destination-dot {
+  background-color: #1E1D39;
+}
+
+.location-details h4 {
+  margin: 0 0 5px 0;
+  color: #1E1D39;
   font-size: 16px;
+}
+
+.location-details p {
+  margin: 0;
+  color: #696B6F;
+  font-size: 14px;
+}
+
+.route-line {
+  flex: 1;
+  height: 2px;
+  background-color: #e0e0e0;
+  margin: 0 15px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.truck-icon {
+  font-size: 20px;
+  position: absolute;
+}
+
+.eta-container {
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.eta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.eta-header h4 {
+  margin: 0;
+  color: #1E1D39;
+  font-size: 16px;
+}
+
+.eta-time {
+  color: #1E1D39;
+  font-weight: 600;
+}
+
+.eta-progress {
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.eta-progress-bar {
+  height: 100%;
+  background-color: #6475D4;
+  border-radius: 4px;
+}
+
+.eta-status {
+  text-align: right;
+  color: #4caf50;
+  font-size: 14px;
+}
+
+.message-driver-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #6475D4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.message-driver-btn:hover {
+  background-color: #5365c4;
+}
+
+.recent-shipments {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.recent-shipments h3 {
+  margin: 0 0 15px 0;
+  color: #1E1D39;
+  font-size: 18px;
+}
+
+.shipment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.shipment-item {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 15px;
+}
+
+.shipment-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.shipment-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.shipment-item-id {
+  color: #1E1D39;
+  font-weight: 500;
+}
+
+.shipment-item-status {
+  font-size: 14px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.shipment-item-status.completed {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.shipment-item-route {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #1E1D39;
+}
+
+.route-arrow {
+  margin: 0 8px;
   color: #696B6F;
 }
 
-.stat-value {
-  font-size: 36px;
-  font-weight: bold;
-  color: #1E1D39;
-  margin-bottom: 5px;
-}
-
-.stat-trend {
+.shipment-item-date {
   font-size: 14px;
   color: #696B6F;
 }
 
-.stat-trend.positive {
-  color: #4caf50;
+/* Messages Styles */
+.customer-messages {
+  padding: 20px 0;
 }
 
-.stat-trend.negative {
-  color: #f44336;
-}
-
-.driver-list {
-  margin-top: 20px;
-}
-
-.driver-list h3 {
-  margin-bottom: 15px;
-  font-size: 18px;
+.customer-messages h2 {
+  margin-bottom: 20px;
   color: #1E1D39;
+  font-size: 24px;
 }
 
-.driver-list table {
-  width: 100%;
-  border-collapse: collapse;
+.message-container {
+  display: flex;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  height: 500px;
 }
 
-.driver-list th, .driver-list td {
-  padding: 12px 15px;
-  text-align: left;
+.message-list {
+  width: 30%;
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+}
+
+.message-item {
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.message-item:hover {
+  background-color: #f5f5f5;
+}
+
+.message-item.unread {
+  background-color: #f0f4ff;
+}
+
+.message-sender {
+  font-weight: 600;
+  color: #1E1D39;
+  margin-bottom: 5px;
+}
+
+.message-preview {
+  font-size: 14px;
+  color: #696B6F;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 5px;
+}
+
+.message-time {
+  font-size: 12px;
+  color: #696B6F;
+  text-align: right;
+}
+
+.message-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-detail-header {
+  padding: 15px;
   border-bottom: 1px solid #e0e0e0;
 }
 
-.driver-list th {
-  background-color: #f5f5f5;
-  font-weight: 600;
+.message-detail-header h3 {
+  margin: 0 0 5px 0;
+  color: #1E1D39;
+}
+
+.message-detail-header span {
+  font-size: 14px;
   color: #696B6F;
 }
 
-.status-available {
-  color: #4caf50;
+.message-detail-content {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message-bubble {
+  max-width: 80%;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.message-bubble.received {
+  align-self: flex-start;
+  background-color: #f0f4ff;
+  border-bottom-left-radius: 4px;
+}
+
+.message-bubble.sent {
+  align-self: flex-end;
+  background-color: #6475D4;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message-text {
+  margin-bottom: 5px;
+}
+
+.message-bubble.sent .message-time {
+  color: rgba(255, 255, 255, 0.8);
+  text-align: right;
+}
+
+.message-input {
+  display: flex;
+  padding: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.message-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  margin-right: 10px;
+}
+
+.send-button {
+  background-color: #6475D4;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+/* Profile Styles */
+.customer-profile {
+  padding: 20px 0;
+}
+
+.customer-profile h2 {
+  margin-bottom: 20px;
+  color: #1E1D39;
+  font-size: 24px;
+}
+
+.profile-details {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.profile-section {
+  margin-bottom: 30px;
+}
+
+.profile-section:last-child {
+  margin-bottom: 0;
+}
+
+.profile-section h3 {
+  margin: 0 0 15px 0;
+  color: #1E1D39;
+  font-size: 18px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.profile-field {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.profile-field label {
+  width: 150px;
+  color: #696B6F;
   font-weight: 500;
 }
 
-.status-on-duty {
-  color: #ff9800;
-  font-weight: 500;
+.profile-field div {
+  flex: 1;
+  color: #1E1D39;
 }
 
-.status-off-duty {
-  color: #f44336;
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  cursor: pointer;
+  width: 33.33%;
+  transition: all 0.2s;
+}
+
+.bottom-nav-item.active {
+  color: #6475D4;
+}
+
+.bottom-nav-icon {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.bottom-nav-label {
+  font-size: 12px;
   font-weight: 500;
 }

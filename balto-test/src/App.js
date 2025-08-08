@@ -50,10 +50,13 @@ function Login({ onLogin }) {
   );
 }
 
-// Dashboard Component
-function Dashboard({ user, onLogout }) {
+// CustomerDashboard Component
+function CustomerDashboard({ user, onLogout }) {
+  const [activeTab, setActiveTab] = useState('loads');
+  
   return (
     <div className="Dashboard">
+      {/* Top Navigation */}
       <nav className="dashboard-nav">
         <div className="logo-container">
           <div className="balto-logo">
@@ -61,73 +64,217 @@ function Dashboard({ user, onLogout }) {
             <p className="tagline-text">Shipping that matters</p>
           </div>
         </div>
-        <ul className="nav-links">
-          <li><a href="#loads">Loads</a></li>
-          <li><a href="#dashboard">Dashboard</a></li>
-          <li><a href="#messages">Messages</a></li>
-        </ul>
         <div className="user-info">
           <span>Welcome, {user.email}</span>
           <button onClick={onLogout} className="logout-button">Logout</button>
         </div>
       </nav>
       
+      {/* Main Content */}
       <div className="dashboard-content">
-        <section className="driver-readiness">
-          <h2>Driver Readiness</h2>
-          <div className="readiness-stats">
-            <div className="stat-card">
-              <h3>Available Drivers</h3>
-              <div className="stat-value">24</div>
-              <div className="stat-trend positive">+3 from yesterday</div>
+        {activeTab === 'loads' && (
+          <section className="customer-loads">
+            <h2>Your Shipments</h2>
+            
+            {/* Active Shipment with ETA */}
+            <div className="active-shipment">
+              <div className="shipment-header">
+                <h3>Active Shipment</h3>
+                <span className="shipment-id">ID: #12345</span>
+              </div>
+              
+              <div className="shipment-route">
+                <div className="origin">
+                  <div className="location-dot origin-dot"></div>
+                  <div className="location-details">
+                    <h4>Chicago, IL</h4>
+                    <p>Pickup: Aug 7, 2025</p>
+                  </div>
+                </div>
+                
+                <div className="route-line">
+                  <div className="truck-icon">🚚</div>
+                </div>
+                
+                <div className="destination">
+                  <div className="location-dot destination-dot"></div>
+                  <div className="location-details">
+                    <h4>Detroit, MI</h4>
+                    <p>Delivery: Aug 9, 2025</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="eta-container">
+                <div className="eta-header">
+                  <h4>Estimated Time of Arrival</h4>
+                  <span className="eta-time">Aug 9, 10:30 AM</span>
+                </div>
+                <div className="eta-progress">
+                  <div className="eta-progress-bar" style={{ width: '65%' }}></div>
+                </div>
+                <div className="eta-status">On schedule</div>
+              </div>
+              
+              <button className="message-driver-btn">
+                Message Driver
+              </button>
             </div>
-            <div className="stat-card">
-              <h3>On Duty</h3>
-              <div className="stat-value">18</div>
-              <div className="stat-trend">No change</div>
+            
+            {/* Recent Shipments */}
+            <div className="recent-shipments">
+              <h3>Recent Shipments</h3>
+              <div className="shipment-list">
+                <div className="shipment-item">
+                  <div className="shipment-item-header">
+                    <span className="shipment-item-id">#12344</span>
+                    <span className="shipment-item-status completed">Delivered</span>
+                  </div>
+                  <div className="shipment-item-route">
+                    <span>New York, NY</span>
+                    <span className="route-arrow">→</span>
+                    <span>Boston, MA</span>
+                  </div>
+                  <div className="shipment-item-date">Aug 5, 2025</div>
+                </div>
+                
+                <div className="shipment-item">
+                  <div className="shipment-item-header">
+                    <span className="shipment-item-id">#12343</span>
+                    <span className="shipment-item-status completed">Delivered</span>
+                  </div>
+                  <div className="shipment-item-route">
+                    <span>Miami, FL</span>
+                    <span className="route-arrow">→</span>
+                    <span>Atlanta, GA</span>
+                  </div>
+                  <div className="shipment-item-date">Aug 1, 2025</div>
+                </div>
+              </div>
             </div>
-            <div className="stat-card">
-              <h3>Off Duty</h3>
-              <div className="stat-value">6</div>
-              <div className="stat-trend negative">+2 from yesterday</div>
+          </section>
+        )}
+        
+        {activeTab === 'messages' && (
+          <section className="customer-messages">
+            <h2>Messages</h2>
+            
+            <div className="message-container">
+              <div className="message-list">
+                <div className="message-item unread">
+                  <div className="message-sender">Mack (Driver)</div>
+                  <div className="message-preview">I'm about 30 minutes away from the destination...</div>
+                  <div className="message-time">10:15 AM</div>
+                </div>
+                
+                <div className="message-item">
+                  <div className="message-sender">Dispatch</div>
+                  <div className="message-preview">Your shipment #12345 has been picked up...</div>
+                  <div className="message-time">Yesterday</div>
+                </div>
+                
+                <div className="message-item">
+                  <div className="message-sender">System</div>
+                  <div className="message-preview">Your shipment #12344 has been delivered...</div>
+                  <div className="message-time">Aug 5</div>
+                </div>
+              </div>
+              
+              <div className="message-detail">
+                <div className="message-detail-header">
+                  <h3>Mack (Driver)</h3>
+                  <span>Shipment #12345</span>
+                </div>
+                
+                <div className="message-detail-content">
+                  <div className="message-bubble received">
+                    <div className="message-text">Hello! I'm your driver for shipment #12345. I've just picked up your load and am on my way.</div>
+                    <div className="message-time">9:30 AM</div>
+                  </div>
+                  
+                  <div className="message-bubble sent">
+                    <div className="message-text">Great! Thanks for letting me know. What's the ETA?</div>
+                    <div className="message-time">9:45 AM</div>
+                  </div>
+                  
+                  <div className="message-bubble received">
+                    <div className="message-text">I'm about 30 minutes away from the destination. Traffic is good today!</div>
+                    <div className="message-time">10:15 AM</div>
+                  </div>
+                </div>
+                
+                <div className="message-input">
+                  <input type="text" placeholder="Type your message..." />
+                  <button className="send-button">Send</button>
+                </div>
+              </div>
             </div>
-          </div>
-          
-          <div className="driver-list">
-            <h3>Driver Status</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Driver</th>
-                  <th>Status</th>
-                  <th>Location</th>
-                  <th>Hours Available</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>John Smith</td>
-                  <td className="status-available">Available</td>
-                  <td>Chicago, IL</td>
-                  <td>8.5 hrs</td>
-                </tr>
-                <tr>
-                  <td>Maria Garcia</td>
-                  <td className="status-on-duty">On Duty</td>
-                  <td>Detroit, MI</td>
-                  <td>3.2 hrs</td>
-                </tr>
-                <tr>
-                  <td>Robert Johnson</td>
-                  <td className="status-off-duty">Off Duty</td>
-                  <td>Indianapolis, IN</td>
-                  <td>0 hrs</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
+          </section>
+        )}
+        
+        {activeTab === 'profile' && (
+          <section className="customer-profile">
+            <h2>Your Profile</h2>
+            
+            <div className="profile-details">
+              <div className="profile-section">
+                <h3>Account Information</h3>
+                <div className="profile-field">
+                  <label>Name</label>
+                  <div>{user.email.split('@')[0]}</div>
+                </div>
+                <div className="profile-field">
+                  <label>Email</label>
+                  <div>{user.email}</div>
+                </div>
+                <div className="profile-field">
+                  <label>Member Since</label>
+                  <div>August 2025</div>
+                </div>
+              </div>
+              
+              <div className="profile-section">
+                <h3>Shipping Preferences</h3>
+                <div className="profile-field">
+                  <label>Default Location</label>
+                  <div>Chicago, IL</div>
+                </div>
+                <div className="profile-field">
+                  <label>Notification Preferences</label>
+                  <div>Email, SMS</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </div>
+      
+      {/* Bottom Navigation */}
+      <nav className="bottom-nav">
+        <div 
+          className={`bottom-nav-item ${activeTab === 'loads' ? 'active' : ''}`}
+          onClick={() => setActiveTab('loads')}
+        >
+          <div className="bottom-nav-icon">📦</div>
+          <div className="bottom-nav-label">Shipments</div>
+        </div>
+        
+        <div 
+          className={`bottom-nav-item ${activeTab === 'messages' ? 'active' : ''}`}
+          onClick={() => setActiveTab('messages')}
+        >
+          <div className="bottom-nav-icon">💬</div>
+          <div className="bottom-nav-label">Messages</div>
+        </div>
+        
+        <div 
+          className={`bottom-nav-item ${activeTab === 'profile' ? 'active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          <div className="bottom-nav-icon">👤</div>
+          <div className="bottom-nav-label">Profile</div>
+        </div>
+      </nav>
     </div>
   );
 }
@@ -189,10 +336,10 @@ function App() {
     );
   }
 
-  // Dashboard (after successful login)
+  // CustomerDashboard (after successful login)
   return (
     <div className="App">
-      <Dashboard user={user} onLogout={handleLogout} />
+      <CustomerDashboard user={user} onLogout={handleLogout} />
     </div>
   );
 }
