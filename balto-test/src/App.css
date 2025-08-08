@@ -1,0 +1,37 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #1E1D39;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.balto-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.balto-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 4rem;
+  margin: 0;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.tagline-text {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
