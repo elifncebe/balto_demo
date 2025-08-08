@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Load Details - Balto</title>
+    <title th:text="${pageTitle != null ? pageTitle + ' - Balto' : 'Load Details - Balto'}">Load Details - Balto</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -122,11 +122,11 @@
         <div class="flex items-center text-sm text-gray-500 mb-6">
             <a href="/dashboard" class="hover:text-primary">Dashboard</a>
             <span class="mx-2">›</span>
-            <span class="text-gray-700">Load Details</span>
+            <span class="text-gray-700" th:text="${viewingAllMessages ? 'All Messages' : 'Load Details'}">Load Details</span>
         </div>
         
-        <!-- Load Details -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <!-- Load Details - Only shown when not viewing all messages -->
+        <div th:if="${!viewingAllMessages}" class="bg-white rounded-lg shadow-md p-6 mb-6">
             <div class="flex justify-between items-start mb-6">
                 <div>
                     <h2 class="text-2xl font-bold text-secondary" th:text="${'Load ' + load.id}">Load L-12345</h2>
@@ -186,8 +186,8 @@
             </div>
         </div>
         
-        <!-- VIN List -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <!-- VIN List - Only shown when not viewing all messages -->
+        <div th:if="${!viewingAllMessages}" class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h3 class="text-xl font-bold text-secondary mb-4">Vehicle Information</h3>
             
             <div class="overflow-x-auto">
@@ -278,12 +278,37 @@
             </div>
         </div>
         
+        <!-- All Messages Header - Only shown when viewing all messages -->
+        <div th:if="${viewingAllMessages && !viewingSingleMessage}" class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-bold text-secondary">All Messages</h2>
+            <p class="text-gray-600 mt-1">View and manage all messages across all loads</p>
+        </div>
+        
+        <!-- Single Message Header - Only shown when viewing a single message -->
+        <div th:if="${viewingSingleMessage}" class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-bold text-secondary" th:text="${'Message #' + messageId}">Message #123</h2>
+            <p class="text-gray-600 mt-1">Viewing a specific message</p>
+            <div class="mt-4">
+                <a href="/messages" class="btn-secondary btn-sm">
+                    Back to All Messages
+                </a>
+            </div>
+        </div>
+        
         <!-- Messaging Thread -->
         <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-xl font-bold text-secondary mb-4">Messages</h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-secondary">Messages</h3>
+                <button id="view-all-messages" class="text-accent hover:text-accent-light font-medium flex items-center">
+                    <span>View all messages</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
             
             <!-- Message Thread -->
-            <div class="space-y-4 mb-6 max-h-96 overflow-y-auto p-2">
+            <div id="message-thread" class="space-y-4 mb-6 max-h-96 overflow-y-auto p-2">
                 <!-- If no messages, show empty state -->
                 <div th:if="${#lists.isEmpty(messages)}" class="text-center text-gray-500 py-8">
                     No messages yet. Start the conversation below.
@@ -337,8 +362,8 @@
                 </div>
             </div>
             
-            <!-- Compose Box -->
-            <form th:action="@{/loads/{id}/message(id=${load.id})}" method="post" enctype="multipart/form-data">
+            <!-- Compose Box - Only shown when viewing a specific load -->
+            <form th:if="${!viewingAllMessages}" th:action="@{/loads/{id}/message(id=${load.id})}" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="message" class="form-label">New Message</label>
                     <textarea id="message" name="content" rows="3" class="form-input" required></textarea>
@@ -366,6 +391,47 @@
                     </button>
                 </div>
             </form>
+            
+            <!-- Message form when viewing all messages -->
+            <form th:if="${viewingAllMessages && !viewingSingleMessage}" th:action="@{/messages/send}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="general-message" class="form-label">New Message</label>
+                    <textarea id="general-message" name="content" rows="3" class="form-input" required></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="form-group">
+                        <label for="general-channel" class="form-label">Channel</label>
+                        <select id="general-channel" name="channelType" class="form-input">
+                            <option value="EMAIL">Email</option>
+                            <option value="SMS">SMS</option>
+                            <option value="IN_APP" selected>In-App</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="general-recipient" class="form-label">Recipient (optional)</label>
+                        <input type="text" id="general-recipient" name="recipient" class="form-input" placeholder="Enter recipient name or ID">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="general-attachment" class="form-label">Attachment (optional)</label>
+                        <input type="file" id="general-attachment" name="attachment" class="form-input pt-1">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="submit" class="btn-primary">
+                        Send Message
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Message when viewing a single message -->
+            <div th:if="${viewingSingleMessage}" class="mt-6 p-4 bg-lavender/30 rounded-lg border border-lavender text-center">
+                <p class="text-secondary">You are viewing a single message. To send a new message, please go to all messages.</p>
+                <a href="/messages" class="btn-primary inline-block mt-2">View All Messages</a>
+            </div>
         </div>
     </main>
     
@@ -385,5 +451,29 @@
             </p>
         </div>
     </footer>
+    
+    <!-- JavaScript for "View all messages" functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewAllMessagesBtn = document.getElementById('view-all-messages');
+            const messageThread = document.getElementById('message-thread');
+            let expanded = false;
+            
+            viewAllMessagesBtn.addEventListener('click', function() {
+                if (expanded) {
+                    // Collapse the message thread
+                    messageThread.classList.remove('max-h-full');
+                    messageThread.classList.add('max-h-96');
+                    viewAllMessagesBtn.querySelector('span').textContent = 'View all messages';
+                } else {
+                    // Expand the message thread
+                    messageThread.classList.remove('max-h-96');
+                    messageThread.classList.add('max-h-full');
+                    viewAllMessagesBtn.querySelector('span').textContent = 'Show less';
+                }
+                expanded = !expanded;
+            });
+        });
+    </script>
 </body>
 </html>

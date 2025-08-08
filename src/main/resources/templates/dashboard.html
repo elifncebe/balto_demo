@@ -124,32 +124,38 @@
                 </div>
 
                 <div class="space-y-3" id="loads-list">
-                    <div class="p-3 bg-light rounded border border-lavender flex justify-between items-center">
-                        <div>
-                            <p class="font-medium">LOD12345</p>
-                            <p class="text-sm text-gray-500">Chicago, IL → Miami, FL</p>
+                    <a href="/loads/12345" class="block hover:shadow-md transition-shadow duration-200">
+                        <div class="p-3 bg-light rounded border border-lavender flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">LOD12345</p>
+                                <p class="text-sm text-gray-500">Chicago, IL → Miami, FL</p>
+                            </div>
+                            <span class="bg-green-100 text-success text-xs font-semibold px-2.5 py-0.5 rounded">In Transit</span>
                         </div>
-                        <span class="bg-green-100 text-success text-xs font-semibold px-2.5 py-0.5 rounded">In Transit</span>
-                    </div>
+                    </a>
 
-                    <div class="p-3 bg-light rounded border border-lavender flex justify-between items-center">
-                        <div>
-                            <p class="font-medium">LOD67890</p>
-                            <p class="text-sm text-gray-500">Dallas, TX → Los Angeles, CA</p>
+                    <a href="/loads/67890" class="block hover:shadow-md transition-shadow duration-200">
+                        <div class="p-3 bg-light rounded border border-lavender flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">LOD67890</p>
+                                <p class="text-sm text-gray-500">Dallas, TX → Los Angeles, CA</p>
+                            </div>
+                            <span class="bg-yellow-100 text-warning text-xs font-semibold px-2.5 py-0.5 rounded">Pending</span>
                         </div>
-                        <span class="bg-yellow-100 text-warning text-xs font-semibold px-2.5 py-0.5 rounded">Pending</span>
-                    </div>
+                    </a>
 
-                    <div class="p-3 bg-light rounded border border-lavender flex justify-between items-center">
-                        <div>
-                            <p class="font-medium">LOD54321</p>
-                            <p class="text-sm text-gray-500">New York, NY → Boston, MA</p>
+                    <a href="/loads/54321" class="block hover:shadow-md transition-shadow duration-200">
+                        <div class="p-3 bg-light rounded border border-lavender flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">LOD54321</p>
+                                <p class="text-sm text-gray-500">New York, NY → Boston, MA</p>
+                            </div>
+                            <span class="bg-lavender text-accent text-xs font-semibold px-2.5 py-0.5 rounded">Assigned</span>
                         </div>
-                        <span class="bg-lavender text-accent text-xs font-semibold px-2.5 py-0.5 rounded">Assigned</span>
-                    </div>
+                    </a>
                 </div>
 
-                <a href="#" class="mt-4 inline-block text-accent hover:text-accent-light font-medium">View all loads →</a>
+                <a href="/dashboard?view=all-loads" class="mt-4 inline-block text-accent hover:text-accent-light font-medium">View all loads →</a>
             </div>
 
             <!-- Card 2: Recent Messages -->
@@ -160,32 +166,38 @@
                 </div>
 
                 <div class="space-y-3">
-                    <div class="p-3 bg-lavender/30 rounded border border-lavender">
-                        <div class="flex justify-between">
-                            <p class="font-medium">Carrier Updates</p>
-                            <span class="text-xs text-gray-500">10:45 AM</span>
+                    <a href="/loads/12345/messages" class="block hover:shadow-md transition-shadow duration-200">
+                        <div class="p-3 bg-lavender/30 rounded border border-lavender">
+                            <div class="flex justify-between">
+                                <p class="font-medium">Carrier Updates</p>
+                                <span class="text-xs text-gray-500">10:45 AM</span>
+                            </div>
+                            <p class="text-sm text-secondary mt-1">Vehicle loaded and leaving Chicago terminal. ETA to Miami is 2 days.</p>
                         </div>
-                        <p class="text-sm text-secondary mt-1">Vehicle loaded and leaving Chicago terminal. ETA to Miami is 2 days.</p>
-                    </div>
+                    </a>
 
-                    <div class="p-3 bg-lavender/30 rounded border border-lavender">
-                        <div class="flex justify-between">
-                            <p class="font-medium">Customer Inquiry</p>
-                            <span class="text-xs text-gray-500">Yesterday</span>
+                    <a href="/loads/12345/messages" class="block hover:shadow-md transition-shadow duration-200">
+                        <div class="p-3 bg-lavender/30 rounded border border-lavender">
+                            <div class="flex justify-between">
+                                <p class="font-medium">Customer Inquiry</p>
+                                <span class="text-xs text-gray-500">Yesterday</span>
+                            </div>
+                            <p class="text-sm text-secondary mt-1">When will my car arrive? I need to confirm delivery time for LOD12345.</p>
                         </div>
-                        <p class="text-sm text-secondary mt-1">When will my car arrive? I need to confirm delivery time for LOD12345.</p>
-                    </div>
+                    </a>
 
-                    <div class="p-3 bg-light rounded border border-lavender">
-                        <div class="flex justify-between">
-                            <p class="font-medium">System Notification</p>
-                            <span class="text-xs text-gray-500">2 days ago</span>
+                    <a href="/messages" class="block hover:shadow-md transition-shadow duration-200">
+                        <div class="p-3 bg-light rounded border border-lavender">
+                            <div class="flex justify-between">
+                                <p class="font-medium">System Notification</p>
+                                <span class="text-xs text-gray-500">2 days ago</span>
+                            </div>
+                            <p class="text-sm text-secondary mt-1">New carrier application submitted. Please review and approve.</p>
                         </div>
-                        <p class="text-sm text-secondary mt-1">New carrier application submitted. Please review and approve.</p>
-                    </div>
+                    </a>
                 </div>
 
-                <a href="#" class="mt-4 inline-block text-accent hover:text-accent-light font-medium">View all messages →</a>
+                <a href="/messages" class="mt-4 inline-block text-accent hover:text-accent-light font-medium">View all messages →</a>
             </div>
 
             <!-- Card 3: Quick Actions -->
@@ -193,34 +205,34 @@
                 <h3 class="text-lg font-semibold text-primary mb-4">Quick Actions</h3>
 
                 <div class="space-y-3">
-                    <button class="w-full flex items-center justify-between p-3 bg-lavender/30 hover:bg-lavender/50 rounded border border-lavender transition">
+                    <a href="/loads/new" class="w-full flex items-center justify-between p-3 bg-lavender/30 hover:bg-lavender/50 rounded border border-lavender transition block">
                         <span class="font-medium">Create New Load</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                         </svg>
-                    </button>
+                    </a>
 
-                    <button class="w-full flex items-center justify-between p-3 bg-lavender/30 hover:bg-lavender/50 rounded border border-lavender transition">
+                    <a href="/messages" class="w-full flex items-center justify-between p-3 bg-lavender/30 hover:bg-lavender/50 rounded border border-lavender transition block">
                         <span class="font-medium">Send Message</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
                             <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
                         </svg>
-                    </button>
+                    </a>
 
-                    <button class="w-full flex items-center justify-between p-3 bg-lavender/30 hover:bg-lavender/50 rounded border border-lavender transition">
+                    <a href="/analytics" class="w-full flex items-center justify-between p-3 bg-lavender/30 hover:bg-lavender/50 rounded border border-lavender transition block">
                         <span class="font-medium">Generate Reports</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0V8z" clip-rule="evenodd" />
                         </svg>
-                    </button>
+                    </a>
 
-                    <button class="w-full flex items-center justify-between p-3 bg-lavender/30 hover:bg-lavender/50 rounded border border-lavender transition">
+                    <a href="#team-invite" class="w-full flex items-center justify-between p-3 bg-lavender/30 hover:bg-lavender/50 rounded border border-lavender transition block">
                         <span class="font-medium">Invite Team Member</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
                         </svg>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

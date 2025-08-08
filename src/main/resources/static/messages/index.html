@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Details - Balto</title>
+    <script>
+        // Extract the message ID from the URL
+        const path = window.location.pathname;
+        const pathParts = path.split('/');
+        
+        // If we're at /messages/ID, redirect to the controller endpoint
+        if (pathParts.length >= 3 && pathParts[1] === 'messages') {
+            const messageId = pathParts[2];
+            if (messageId && messageId !== 'index.html' && messageId !== 'number') {
+                window.location.href = '/messages/' + messageId;
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background-color: #f5f5f7;
+            color: #151326;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #151326;
+        }
+        p {
+            margin: 20px 0;
+        }
+        a {
+            color: #6A5ACD;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Redirecting to Message Details</h1>
+        <p>If you are not redirected automatically, <a href="/messages">click here to view all messages</a>.</p>
+    </div>
+</body>
+</html>
