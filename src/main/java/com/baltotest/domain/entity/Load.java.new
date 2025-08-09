@@ -82,33 +82,6 @@ public class Load {
     @JoinColumn(name = "created_by_id", nullable = false)
     private User createdBy;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private User customer;
-
-    @ManyToOne
-    @JoinColumn(name = "carrier_id")
-    private User carrier;
-
-    @ManyToOne
-    @JoinColumn(name = "broker_id")
-    private User broker;
-
-    @Column
-    private String vehicleDetails;
-
-    @Column
-    private String originAddress;
-
-    @Column
-    private String destinationAddress;
-
-    @Column
-    private LocalDateTime deliveryDate;
-
-    @Column
-    private LocalDateTime estimatedDeliveryDate;
-
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -156,7 +129,6 @@ public class Load {
 
     public LocalDate getPickupDate() { return pickupDate; }
     public void setPickupDate(LocalDate pickupDate) { this.pickupDate = pickupDate; }
-    public void setPickupDate(LocalDateTime pickupDate) { this.pickupDate = pickupDate.toLocalDate(); }
 
     public String getPickupTime() { return pickupTime; }
     public void setPickupTime(String pickupTime) { this.pickupTime = pickupTime; }
@@ -215,30 +187,6 @@ public class Load {
 
     public User getCreatedBy() { return createdBy; }
     public void setCreatedBy(User createdBy) { this.createdBy = createdBy; }
-
-    public User getCustomer() { return customer; }
-    public void setCustomer(User customer) { this.customer = customer; }
-
-    public User getCarrier() { return carrier; }
-    public void setCarrier(User carrier) { this.carrier = carrier; }
-
-    public User getBroker() { return broker; }
-    public void setBroker(User broker) { this.broker = broker; }
-
-    public String getVehicleDetails() { return vehicleDetails; }
-    public void setVehicleDetails(String vehicleDetails) { this.vehicleDetails = vehicleDetails; }
-
-    public String getOriginAddress() { return originAddress; }
-    public void setOriginAddress(String originAddress) { this.originAddress = originAddress; }
-
-    public String getDestinationAddress() { return destinationAddress; }
-    public void setDestinationAddress(String destinationAddress) { this.destinationAddress = destinationAddress; }
-
-    public LocalDateTime getDeliveryDate() { return deliveryDate; }
-    public void setDeliveryDate(LocalDateTime deliveryDate) { this.deliveryDate = deliveryDate; }
-
-    public LocalDateTime getEstimatedDeliveryDate() { return estimatedDeliveryDate; }
-    public void setEstimatedDeliveryDate(LocalDateTime estimatedDeliveryDate) { this.estimatedDeliveryDate = estimatedDeliveryDate; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

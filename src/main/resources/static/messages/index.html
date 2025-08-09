@@ -8,7 +8,21 @@
         // Extract the message ID from the URL
         const path = window.location.pathname;
         const pathParts = path.split('/');
-        
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Balto</title>
+    <script>
+        // Redirect to the main app with messages view active
+        window.location.href = '/#messages';
+    </script>
+</head>
+<body>
+    <p>Redirecting to messages...</p>
+</body>
+</html>
         // If we're at /messages/ID, redirect to the controller endpoint
         if (pathParts.length >= 3 && pathParts[1] === 'messages') {
             const messageId = pathParts[2];

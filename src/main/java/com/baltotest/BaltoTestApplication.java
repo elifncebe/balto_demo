@@ -14,7 +14,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     SecurityAutoConfiguration.class
 })
 @EntityScan(basePackages = "com.baltotest.domain.entity")
-@EnableJpaRepositories(basePackages = "com.baltotest.adapter.repository")
+@EnableJpaRepositories(basePackages = {"com.baltotest.adapter.repository", "com.baltotest.domain.repository"})
 @ComponentScan(basePackages = "com.baltotest", 
     excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, 

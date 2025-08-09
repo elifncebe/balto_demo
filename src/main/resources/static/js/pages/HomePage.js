@@ -1,5 +1,188 @@
 // HomePage.js - Main landing page for Balto application
+// HomePage.js - Main landing page for Balto application
 
+function HomePage() {
+  const [activeShipments, setActiveShipments] = React.useState([]);
+  const [recentShipments, setRecentShipments] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+  const auth = useAuth();
+
+  React.useEffect(() => {
+    const fetchShipments = async () => {
+      try {
+        setLoading(true);
+        // In a real app, this would be an API call
+        // Mock data for demonstration
+        const mockActiveShipment = {
+          id: "12345",
+          status: "IN_TRANSIT",
+          pickup: {
+            city: "Chicago, IL",
+            date: "2025-08-07T09:00:00"
+          },
+          delivery: {
+            city: "Detroit, MI",
+            date: "2025-08-09T14:00:00"
+          },
+          carrier: {
+            name: "FastTruck Logistics",
+            phone: "+1 (555) 123-4567"
+          },
+          eta: {
+            date: "2025-08-09",
+            time: "10:30 AM",
+            status: "On schedule"
+          }
+        };
+
+        const mockRecentShipments = [
+          {
+            id: "12344",
+            status: "DELIVERED",
+            pickup: "New York, NY",
+            delivery: "Boston, MA",
+            date: "2025-08-05"
+          },
+          {
+            id: "12343",
+            status: "DELIVERED",
+            pickup: "Miami, FL",
+            delivery: "Atlanta, GA",
+            date: "2025-08-01"
+          }
+        ];
+
+        setActiveShipments([mockActiveShipment]);
+        setRecentShipments(mockRecentShipments);
+
+      } catch (err) {
+        console.error('Error fetching shipments:', err);
+        setError('Failed to load shipments. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShipments();
+  }, []);
+
+  // Helper function to format dates
+  const formatDate = (dateString) => {
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  // Helper function to get status styling
+  const getStatusStyle = (status) => {
+    switch(status) {
+      case 'DELIVERED':
+        return { color: 'var(--success-color)' };
+      case 'IN_TRANSIT':
+        return { color: 'var(--accent-color)' };
+      case 'CANCELLED':
+        return { color: 'var(--danger-color)' };
+      default:
+        return { color: 'var(--primary-color)' };
+    }
+  };
+
+  return (
+    <div className="shipments-container">
+      <div className="shipments-header">
+        <h1>Your Shipments</h1>
+      </div>
+
+      {loading ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading shipments...</p>
+        </div>
+      ) : error ? (
+        <div className="error-message">
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Try Again</button>
+        </div>
+      ) : (
+        <>
+          {/* Active Shipment Section */}
+          {activeShipments.length > 0 && (
+            <div className="active-shipment-card">
+              <div className="shipment-card-header">
+                <div className="shipment-label">Active Shipment</div>
+                <div className="shipment-id">ID: #{activeShipments[0].id}</div>
+              </div>
+              <div className="shipment-details">
+                <div className="location-container">
+                  <div className="pickup-location">
+                    <p>{activeShipments[0].pickup.city}</p>
+                    <p>Pickup: {formatDate(activeShipments[0].pickup.date)}</p>
+                  </div>
+                  <div className="shipment-icon">🚚</div>
+                  <div className="delivery-location">
+                    <p>{activeShipments[0].delivery.city}</p>
+                    <p>Delivery: {formatDate(activeShipments[0].delivery.date)}</p>
+                  </div>
+                </div>
+                <div className="shipment-info-section">
+                  <div className="eta-section">
+                    <h4>Estimated Time of Arrival</h4>
+                    <p className="eta-time">{formatDate(activeShipments[0].eta.date)}, {activeShipments[0].eta.time}</p>
+                    <p className="eta-status">{activeShipments[0].eta.status}</p>
+                  </div>
+                  <button className="message-driver-btn">
+                    Message Driver
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Recent Shipments Section */}
+          <div className="recent-shipments-section">
+            <h2>Recent Shipments</h2>
+
+            {recentShipments.length > 0 ? (
+              recentShipments.map(shipment => (
+                <div key={shipment.id} className="recent-shipment-item">
+                  <div className="shipment-summary">
+                    <div className="shipment-id-badge">#{shipment.id}</div>
+                    <div className="shipment-status" style={getStatusStyle(shipment.status)}>
+                      {shipment.status === 'DELIVERED' ? 'Delivered' : shipment.status}
+                    </div>
+                  </div>
+                  <div className="shipment-route">
+                    {shipment.pickup} <span>→</span> {shipment.delivery}
+                  </div>
+                  <div className="shipment-date">{formatDate(shipment.date)}</div>
+                </div>
+              ))
+            ) : (
+              <div className="no-shipments-message">
+                <p>You don't have any recent shipments</p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      <nav className="mobile-nav">
+        <button className="nav-item active">
+          📦
+          <span>Shipments</span>
+        </button>
+        <button className="nav-item" onClick={() => window.location.hash = 'messages'}>
+          💬
+          <span>Messages</span>
+        </button>
+        <button className="nav-item" onClick={() => window.location.hash = 'profile'}>
+          👤
+          <span>Profile</span>
+        </button>
+      </nav>
+    </div>
+  );
+}
 function HomePage() {
   const [activeShipments, setActiveShipments] = React.useState([]);
   const [recentShipments, setRecentShipments] = React.useState([]);

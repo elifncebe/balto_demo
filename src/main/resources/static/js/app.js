@@ -3,77 +3,22 @@
 // Configure axios defaults
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
-// Configure axios defaults
-axios.defaults.headers.common['Content-Type'] = 'application/json';
+// Simple hash-based router
+function useRouter() {
+  const [currentRoute, setCurrentRoute] = React.useState(window.location.hash.slice(1) || '');
 
-// Create a context for authentication
-const AuthContext = React.createContext(null);
-
-// Authentication Provider component
-function AuthProvider({ children }) {
-  const [user, setUser] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
-
-  // Check if user is already logged in on component mount
   React.useEffect(() => {
-    const storedUser = localStorage.getItem('balto_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    const handleHashChange = () => {
+      setCurrentRoute(window.location.hash.slice(1) || '');
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Login function
-  const login = async (email, password) => {
-    try {
-      setLoading(true);
-      const response = await axios.post('/auth/login', 
-        { email, password },
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-      const userData = response.data.data;
-      setUser(userData);
-      localStorage.setItem('balto_user', JSON.stringify(userData));
-      return { success: true };
-    } catch (error) {
-      console.error('Login error:', error);
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed. Please try again.' 
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
+  return currentRoute;
+}
 
-  // Register function
-  const register = async (name, email, password) => {
-    try {
-      setLoading(true);
-      const response = await axios.post('/auth/signup', 
-        { name, email, password },
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-      const userData = response.data.data;
-      setUser(userData);
-      localStorage.setItem('balto_user', JSON.stringify(userData));
-      return { success: true };
-    } catch (error) {
-      console.error('Registration error:', error);
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Registration failed. Please try again.' 
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Logout function
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('balto_user');
-  };
 // Create a React context for authentication
 const AuthContext = React.createContext(null);
 
@@ -221,6 +166,10 @@ function useAuth() {
     }
     return context;
 }
+
+// Import the page components
+// These would normally be in separate files, but we're including them directly for simplicity
+// HomePage, ShipmentsPage, MessagesPage, and ProfilePage are defined in their respective files
 
 // Login component
 function Login() {
@@ -451,6 +400,172 @@ function Register() {
         </div>
     );
 }
+
+// Load the components from their files
+// This would be done by a bundler in a real app
+function loadExternalComponents() {
+    // Add script tags to load the components
+    const shipmentsScript = document.createElement('script');
+    shipmentsScript.src = '/js/pages/ShipmentsPage.js';
+    shipmentsScript.type = 'text/babel';
+
+    const messagesScript = document.createElement('script');
+    messagesScript.src = '/js/pages/MessagesPage.js';
+    messagesScript.type = 'text/babel';
+
+    const profileScript = document.createElement('script');
+    profileScript.src = '/js/pages/ProfilePage.js';
+    profileScript.type = 'text/babel';
+
+    document.body.appendChild(shipmentsScript);
+    document.body.appendChild(messagesScript);
+    document.body.appendChild(profileScript);
+
+    // Return a promise that resolves when all scripts are loaded
+    return new Promise((resolve) => {
+        let loadedCount = 0;
+        const totalScripts = 3;
+
+        const checkAllLoaded = () => {
+            loadedCount++;
+            if (loadedCount === totalScripts) {
+                resolve();
+            }
+        };
+
+        shipmentsScript.onload = checkAllLoaded;
+        messagesScript.onload = checkAllLoaded;
+        profileScript.onload = checkAllLoaded;
+    });
+}
+
+// Main App component with navigation
+function App() {
+    const [currentPage, setCurrentPage] = React.useState('shipments');
+    const auth = useAuth();
+
+    // Parse hash route from URL on mount and when hash changes
+    React.useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash === 'messages') {
+                setCurrentPage('messages');
+            } else if (hash === 'profile') {
+                setCurrentPage('profile');
+            } else {
+                setCurrentPage('shipments');
+            }
+        };
+
+        // Set initial page based on hash
+        handleHashChange();
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', handleHashChange);
+
+        return () => {
+            window.removeEventListener('hashchange', handleHashChange);
+        };
+    }, []);
+
+    // Update hash when page changes
+    React.useEffect(() => {
+        window.location.hash = currentPage === 'shipments' ? '' : currentPage;
+    }, [currentPage]);
+
+    // If still loading auth state, show loading
+    if (!auth.isInitialized) {
+        return (
+            <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Loading application...</p>
+            </div>
+        );
+    }
+
+    // If not authenticated, show auth pages
+    if (!auth.user) {
+        return (
+            <div className="auth-container">
+                <div className="auth-tabs">
+                    <ul className="nav nav-tabs mb-4" id="authTab" role="tablist">
+                        <li className="nav-item" role="presentation">
+                            <button className="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">Login</button>
+                        </li>
+                        <li className="nav-item" role="presentation">
+                            <button className="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab" aria-controls="register" aria-selected="false">Register</button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div className="tab-content" id="authTabContent">
+                    <div className="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                        <Login />
+                    </div>
+                    <div className="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+                        <Register />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Authenticated user, show the appropriate page
+    let currentPageComponent;
+    switch(currentPage) {
+        case 'shipments':
+            // Import this component from ShipmentsPage.js
+            currentPageComponent = <ShipmentsPage />;
+            break;
+        case 'messages':
+            // Import this component from MessagesPage.js
+            currentPageComponent = <MessagesPage />;
+            break;
+        case 'profile':
+            // Import this component from ProfilePage.js
+            currentPageComponent = <ProfilePage />;
+            break;
+        case 'create-shipment':
+            // Import this component from CreateShipmentPage.js
+            currentPageComponent = <CreateShipmentPage />;
+            break;
+        default:
+            currentPageComponent = <ShipmentsPage />;
+    }
+
+    return (
+        <div className="app-container">
+            {currentPageComponent}
+        </div>
+    );
+}
+
+// Render the App
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Load external components first
+        await loadExternalComponents();
+
+        // Then render the app
+        const rootElement = document.getElementById('app');
+        const root = ReactDOM.createRoot(rootElement);
+
+        root.render(
+            <AuthProvider>
+                <App />
+            </AuthProvider>
+        );
+    } catch (error) {
+        console.error('Error initializing application:', error);
+        document.getElementById('app').innerHTML = `
+            <div class="alert alert-danger">
+                <h4>Application Error</h4>
+                <p>Failed to initialize the application. Please try again later.</p>
+                <p><small>${error.message}</small></p>
+            </div>
+        `;
+    }
+});
 
 // Dashboard component
 function Dashboard() {
@@ -1017,6 +1132,13 @@ function Dashboard() {
             </li>
             <li className="nav-item">
               <button 
+                                          onClick={() => setActivePage('home')} 
+                                          className={`btn btn-link nav-link text-center py-3 ${activePage === 'home' ? 'active' : ''}`}
+                                      >
+                                          <i className="bi bi-house-door d-block"></i>
+                                          <small>Home</small>
+                                      </button>
+                                      <button 
                 className={`nav-link ${activeSection === 'channels' ? 'active' : ''}`}
                 onClick={() => setActiveSection('channels')}
               >

@@ -22,7 +22,7 @@ public class RabbitMqConfig {
     private static final String USER_REGISTERED_ROUTING_KEY = "user.registered";
 
     // Message events
-    private static final String MESSAGE_EVENTS_EXCHANGE = "message-events";
+    private static final String MESSAGE_EVENTS_EXCHANGE = "message-events-exchange";
     private static final String MESSAGE_SENT_QUEUE = "message-sent-queue";
     private static final String LOAD_STATUS_QUEUE = "load-status-queue";
     private static final String LOAD_ETA_QUEUE = "load-eta-queue";

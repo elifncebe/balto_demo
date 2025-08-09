@@ -203,7 +203,8 @@ public class LoadService implements LoadUseCase {
         response.id = load.getId();
         response.originAddress = load.getOriginAddress();
         response.destinationAddress = load.getDestinationAddress();
-        response.pickupDate = load.getPickupDate();
+        // Convert LocalDate to LocalDateTime
+        response.pickupDate = load.getPickupDate().atStartOfDay();
         response.deliveryDate = load.getDeliveryDate();
         response.estimatedDeliveryDate = load.getEstimatedDeliveryDate();
         response.status = load.getStatus();

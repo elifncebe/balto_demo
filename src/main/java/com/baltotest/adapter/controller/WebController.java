@@ -238,9 +238,10 @@ public class WebController {
     }
 
     /**
-     * Analytics page showing broker-level metrics
+     * Legacy analytics page showing broker-level metrics
+     * @deprecated Use AnalyticsController instead for real data
      */
-    @GetMapping("/analytics")
+    @GetMapping("/legacy-analytics")
     public String analytics(Model model,
                            @RequestParam(required = false) LocalDate startDate,
                            @RequestParam(required = false) LocalDate endDate) {

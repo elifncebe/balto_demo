@@ -25,15 +25,6 @@ public class Channel {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> members = new HashSet<>();
-    
-    @Enumerated(EnumType.STRING)
-    private ChannelType type;
-    
-    @Column
-    private String configuration; // JSON configuration for the channel (e.g., API keys, endpoints)
-    
-    @Column(nullable = false)
-    private boolean active;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -76,15 +67,6 @@ public class Channel {
     public void removeMember(User user) {
         members.remove(user);
     }
-    
-    public ChannelType getType() { return type; }
-    public void setType(ChannelType type) { this.type = type; }
-    
-    public String getConfiguration() { return configuration; }
-    public void setConfiguration(String configuration) { this.configuration = configuration; }
-    
-    public boolean isActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

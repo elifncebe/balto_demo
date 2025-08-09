@@ -254,6 +254,501 @@ a:hover {
   align-self: flex-end;
 }
 
+/* Mobile App UI Styles */
+/* Main CSS for Balto Application */
+/* Additional styles for Balto application */
+
+/* Custom fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Custom variables */
+:root {
+  --primary-color: #151326;
+  --primary-hover: #0D0C18;
+  --primary-light: #2E294E;
+  --accent-color: #6A5ACD;
+  --accent-light: #8A4FFF;
+  --background-color: #f6f6f6;
+  --card-color: #ffffff;
+  --text-dark: #000000;
+  --text-medium: #555555;
+  --text-light: #777777;
+  --success-color: #4CAF50;
+  --warning-color: #FF9800;
+  --danger-color: #F44336;
+  --border-color: #f0f0f0;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-dark);
+}
+
+/* Global loading spinner */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.loading-spinner {
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+/* Common container styles */
+.shipments-container,
+.messages-container,
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 16px;
+  background-color: #f6f6f6;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Headers */
+.shipments-header,
+.messages-header,
+.profile-header {
+  margin-bottom: 24px;
+  padding-bottom: 0;
+}
+
+.shipments-header h1,
+.messages-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+}
+
+/* Active Shipment Card */
+.active-shipment-card {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.shipment-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 16px 0;
+  background-color: transparent;
+  color: #000;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 16px;
+}
+
+.shipment-label {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.shipment-id {
+  font-weight: 500;
+  font-size: 14px;
+  color: #666;
+}
+
+.shipment-details {
+  padding: 20px;
+}
+
+.location-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.pickup-location,
+.delivery-location {
+  flex: 1;
+}
+
+.pickup-location {
+  text-align: left;
+}
+
+.delivery-location {
+  text-align: right;
+}
+
+.pickup-location h3,
+.delivery-location h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+}
+
+.pickup-location p,
+.delivery-location p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #777;
+}
+
+.shipment-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  color: #555;
+  margin: 0 16px;
+}
+
+.shipment-info-section {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 16px;
+}
+
+.eta-section {
+  margin-bottom: 16px;
+}
+
+.eta-section h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #000;
+}
+
+.eta-time {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #000;
+}
+
+.eta-status {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: #4CAF50;
+}
+
+.message-driver-btn {
+  background-color: #151326;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  font-size: 15px;
+}
+
+/* Recent Shipments */
+.recent-shipments-section {
+  margin-bottom: 80px; /* Space for the navigation bar */
+}
+
+.recent-shipments-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #000;
+}
+
+.recent-shipment-item {
+  background-color: white;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.shipment-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.shipment-id-badge {
+  font-weight: 600;
+  color: #151326;
+  font-size: 15px;
+}
+
+.shipment-status {
+  font-size: 14px;
+  color: #4CAF50;
+}
+
+.shipment-route {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #444;
+}
+
+.shipment-route i {
+  margin: 0 8px;
+  color: #999;
+  font-size: 12px;
+}
+
+.shipment-date {
+  font-size: 13px;
+  color: #777;
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
+  padding: 12px 0 20px;
+  z-index: 100;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 12px;
+}
+
+.nav-item i {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.nav-item.active {
+  color: #151326;
+  font-weight: 500;
+}
+
+/* Messages Page Styles */
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 80px; /* Space for the navigation bar */
+}
+
+.message-thread {
+  display: flex;
+  padding: 16px;
+  border-radius: 16px;
+  background-color: white;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+.message-thread.active {
+  border-left: 4px solid var(--primary-color);
+}
+
+.avatar-container {
+  margin-right: 12px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #151326;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.message-preview {
+  flex: 1;
+  overflow: hidden;
+}
+
+.message-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.contact-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+}
+
+.message-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.message-snippet {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+/* Profile Page Styles */
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-top: 16px;
+}
+
+.profile-image-container {
+  margin-bottom: 16px;
+}
+
+.profile-image {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #151326;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.profile-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #000;
+}
+
+.user-email {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #777;
+}
+
+.profile-sections {
+  margin-bottom: 80px; /* Space for the navigation bar */
+}
+
+.profile-section {
+  background-color: white;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.section-header i {
+  margin-right: 12px;
+  color: #151326;
+  font-size: 18px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: #000;
+}
+
+.profile-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item span {
+  font-size: 15px;
+  color: #333;
+}
+
+.menu-item i {
+  color: #999;
+  font-size: 14px;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  color: #E53935;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.logout-button i {
+  margin-right: 8px;
+}
+
 /* Channel Items */
 .channel-item {
   transition: transform 0.2s;
