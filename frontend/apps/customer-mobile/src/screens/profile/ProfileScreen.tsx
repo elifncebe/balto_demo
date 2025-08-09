@@ -34,6 +34,7 @@ interface UserProfile {
   phone?: string;
   company?: string;
   role: string;
+  location?: string;
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
@@ -47,6 +48,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [company, setCompany] = useState('');
+  const [location, setLocation] = useState('');
   
   // Password change states
   const [currentPassword, setCurrentPassword] = useState('');
@@ -83,6 +85,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
           phone: '(555) 123-4567',
           company: 'ABC Shipping Inc.',
           role: 'CUSTOMER',
+          location: 'Princeton, NJ',
         };
         
         setUserProfile(mockProfile);
@@ -92,6 +95,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         setEmail(mockProfile.email || '');
         setPhone(mockProfile.phone || '');
         setCompany(mockProfile.company || '');
+        setLocation(mockProfile.location || 'Princeton, NJ');
         
         setIsLoading(false);
       }, 1000);
@@ -160,7 +164,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       //   name,
       //   email,
       //   phone,
-      //   company
+      //   company,
+      //   location
       // });
       
       // For now, just simulate the API call
@@ -172,7 +177,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             name,
             email,
             phone,
-            company
+            company,
+            location
           });
         }
         
@@ -295,6 +301,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               </View>
               
               <View style={styles.infoRow}>
+                <Caption style={styles.infoLabel}>Location:</Caption>
+                <Body1>{userProfile?.location || 'Princeton, NJ'}</Body1>
+              </View>
+              
+              <View style={styles.infoRow}>
                 <Caption style={styles.infoLabel}>Role:</Caption>
                 <Body1>{userProfile?.role || 'CUSTOMER'}</Body1>
               </View>
@@ -338,6 +349,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 value={company}
                 onChangeText={setCompany}
                 error={errors.company}
+              />
+              
+              <Input
+                label="Location"
+                value={location}
+                onChangeText={setLocation}
+                error={errors.location}
               />
               
               <View style={styles.buttonRow}>

@@ -26,7 +26,7 @@ public class ProfileController {
     public ResponseEntity<UserResponse> updateProfile(
         @RequestParam UUID userId,
         @RequestBody UpdateProfileRequest request) {
-        UserResponse response = profileUseCase.updateProfile(userId, request.getName(), request.getPhone());
+        UserResponse response = profileUseCase.updateProfile(userId, request.getName(), request.getPhone(), request.getLocation());
         return ResponseEntity.ok(response);
     }
 }

@@ -20,16 +20,19 @@ public class ProfileService implements ProfileUseCase {
     public UserResponse getProfile(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole());
+        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getLocation());
     }
 
     @Override
-    public UserResponse updateProfile(UUID userId, String name, String phone) {
+    public UserResponse updateProfile(UUID userId, String name, String phone, String location) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setName(name);
         user.setPhone(phone);
+        if (location != null) {
+            user.setLocation(location);
+        }
         User updated = userRepository.save(user);
-        return new UserResponse(updated.getId(), updated.getName(), updated.getEmail(), updated.getRole());
+        return new UserResponse(updated.getId(), updated.getName(), updated.getEmail(), updated.getRole(), updated.getLocation());
     }
 }

@@ -24,6 +24,9 @@ public class User {
     private Role role;
     
     private String phone;
+    
+    @Column(nullable = true)
+    private String location = "Princeton, NJ"; // Default location
 
     public UUID getId() { return id; }
     public String getName() { return name; }
@@ -31,6 +34,7 @@ public class User {
     public String getHashedPassword() { return hashedPassword; }
     public Role getRole() { return role; }
     public String getPhone() { return phone; }
+    public String getLocation() { return location; }
 
     public void setId(UUID id) { this.id = id; }
     public void setName(String name) { this.name = name; }
@@ -38,4 +42,5 @@ public class User {
     public void setHashedPassword(String hashedPassword) { this.hashedPassword = hashedPassword; }
     public void setRole(Role role) { this.role = role; }
     public void setPhone(String phone) { this.phone = phone; }
+    public void setLocation(String location) { this.location = location; }
 }
